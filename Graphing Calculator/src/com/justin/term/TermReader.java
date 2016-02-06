@@ -10,8 +10,6 @@ public class TermReader {
 
 	public static Term readTerm(String s){
 		
-		
-		
 		Term out = null;
 		Operation nextOperation = null;		
 		s = s.replace(" ", "").toLowerCase();
@@ -66,12 +64,20 @@ public class TermReader {
 				if(Character.isAlphabetic(c)){
 					
 					//TODO make a string that records any string of alphabetical characters
-					out = operate(out, new Variable(c + ""), nextOperation);					
+					
+					String letters = getFirstAlphabeticString(i,s);
+					i += letters.length() - 1;
+					
+					if(isFunctionString(letters)){
+						out = operate(out, getFunctionTerm(letters), nextOperation);;
+					}else{
+						out = operate(out, new Variable(letters), nextOperation);					
+					}					
+					
 					nextOperation = null;
 					
 					//Its a variable
 				}else{
-					
 					int n = Integer.parseInt(c + "");					
 					out = operate(out, new Number(n), nextOperation);				
 					nextOperation = null;
@@ -80,6 +86,28 @@ public class TermReader {
 		}
 		
 		return out;
+	}
+	
+	static String[] functionStringArr = {
+			"sin", "cos", "tan"	
+	};
+	
+	private static boolean isFunctionString(String s){
+		for(String compare : functionStringArr){
+			if(s.equals(compare)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static Term getFunctionTerm(String function){
+		switch(function){
+		case "sin":  
+		case "cos":
+		case "tan":
+		}
+		return null;
 	}
 	
 	private static Term operate(Term main, Term add, Operation nextOperation){
@@ -101,5 +129,21 @@ public class TermReader {
 		}
 		
 		return main;
+	}
+	
+	private static String getFirstAlphabeticString(int start, String s){
+		
+		
+		int endIndex = start;
+		for(int i = start; i < s.length(); i++){
+			
+			if(Character.isAlphabetic(s.charAt(i))){
+				endIndex = i;
+			}else{
+				break;
+			}
+		}
+		
+		return s.substring(start, endIndex + 1 );
 	}
 }

@@ -25,9 +25,6 @@ public class MainWindow extends JFrame{
 		new MainWindow().run();
 	}
 	
-	int width = 0;
-	int height = 0;
-	
 	FunctionController fc;
 	GraphingComp gc;
 	
