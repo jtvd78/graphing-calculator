@@ -19,7 +19,7 @@ public class FunctionController {
 		return functionList.get(funct).getColor();
 	}
 	
-	public int getFunctionCount(){
+	public int getFunctionCount(){ 
 		return functionList.toArray().length;
 	}
 
