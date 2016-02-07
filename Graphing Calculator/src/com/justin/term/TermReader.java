@@ -1,5 +1,9 @@
 package com.justin.term;
 
+import com.justin.term.custom.LogTerm;
+import com.justin.term.custom.Trig;
+import com.justin.term.custom.TrigTerm;
+
 public class TermReader {
 	
 	//PEMDAS
@@ -20,33 +24,12 @@ public class TermReader {
 			
 			if(c == '('){
 				
-				//If open paren found, find corresponding closed.
-				int openCount = 0;
-				int closedCount = 0;
-				boolean openFound = false;
+				int closingParen = getClosingParenIndex(i, s);
+				out = operate(out, readTerm(s.substring(i + 1)), nextOperation);
 				
-				for(int ctr = i; ctr < s.length(); ctr++){
-					char scanChar = s.charAt(ctr);
-					
-					if(scanChar == '('){
-						openFound = true;
-						openCount++;
-					}else if(scanChar == ')'){
-						closedCount++;
-					}
-					
-					if(openFound && openCount == closedCount){
-						out = operate(out, readTerm(s.substring(i + 1)), nextOperation);
-						i = ctr;
-						break;
-					}
-				}
+				//Move outer loop to the closing paren.
+				i = closingParen;
 				
-				//No end parenthesis found. Break to end reading
-				if(closedCount == 0){
-					out = operate(out, readTerm(s.substring(i + 1)), nextOperation);
-					break;
-				}
 			}else if(c == ')'){
 				break;	
 			}else if(c == '*'){
@@ -63,13 +46,18 @@ public class TermReader {
 				
 				if(Character.isAlphabetic(c)){
 					
-					//TODO make a string that records any string of alphabetical characters
-					
 					String letters = getFirstAlphabeticString(i,s);
 					i += letters.length() - 1;
 					
 					if(isFunctionString(letters)){
-						out = operate(out, getFunctionTerm(letters), nextOperation);;
+						
+						int closingParen = getClosingParenIndex(i,s);
+						String functionArgumentsString = s.substring(i, closingParen);
+						
+						//Move outer loop to the closing paren.
+						i = closingParen;
+						
+						out = operate(out, getFunctionTerm(letters, readFunctionArguments(functionArgumentsString)), nextOperation);;
 					}else{
 						out = operate(out, new Variable(letters), nextOperation);					
 					}					
@@ -88,8 +76,51 @@ public class TermReader {
 		return out;
 	}
 	
+	private static Term[] readFunctionArguments(String s){
+		
+		System.out.println("readFunctionArguments" + s);
+		
+		String[] arguments = s.split(",");
+		
+		System.out.println(arguments[0]);
+		
+		
+		Term[] out = new Term[arguments.length];
+		
+		int ctr = 0;
+		for(String arg : arguments){
+			out[ctr] = readTerm(arg);
+			ctr++;
+		}
+		return out;
+	}
+	
+	private static int getClosingParenIndex(int start, String s){
+		//If open paren found, find corresponding closed.
+		int openCount = 0;
+		int closedCount = 0;
+		boolean openFound = false;
+		
+		for(int ctr = start; ctr < s.length(); ctr++){
+			char scanChar = s.charAt(ctr);
+			
+			if(scanChar == '('){
+				openFound = true;
+				openCount++;
+			}else if(scanChar == ')'){
+				closedCount++;
+			}
+			
+			if(openFound && openCount == closedCount){
+				return ctr;
+			}
+		}
+		
+		return s.length() - 1;
+	}
+	
 	static String[] functionStringArr = {
-			"sin", "cos", "tan"	
+			"sin", "cos", "tan", "log"
 	};
 	
 	private static boolean isFunctionString(String s){
@@ -101,11 +132,18 @@ public class TermReader {
 		return false;
 	}
 	
-	private static Term getFunctionTerm(String function){
+	private static Term getFunctionTerm(String function, Term[] argumentList){
+		
+		for(Term t : argumentList){
+			System.out.println(t);
+		}
+		
+		
 		switch(function){
-		case "sin":  
-		case "cos":
-		case "tan":
+		case "sin": return new TrigTerm(Trig.SIN, argumentList[0]);
+		case "cos": return new TrigTerm(Trig.COS, argumentList[0]);
+		case "tan": return new TrigTerm(Trig.TAN, argumentList[0]);
+		case "log": return new LogTerm(argumentList[0], argumentList[1]);
 		}
 		return null;
 	}
