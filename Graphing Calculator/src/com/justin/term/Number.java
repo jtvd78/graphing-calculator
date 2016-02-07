@@ -2,8 +2,10 @@ package com.justin.term;
 
 public class Number extends Term{
 	
+	double value;
+	
 	public Number(double value){
-		super(value);
+		this.value = value;
 	}
 
 	@Override
@@ -14,5 +16,10 @@ public class Number extends Term{
 	@Override
 	public String getDisplayName() {
 		return value + "";
+	}
+
+	@Override
+	public double getValue() {
+		return value;
 	}
 }

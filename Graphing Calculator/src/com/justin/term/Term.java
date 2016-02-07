@@ -3,12 +3,7 @@ import java.util.ArrayList;
 
 public abstract class Term {
 	
-	protected double value;
 	ArrayList<Step> stepList = new ArrayList<Step>();
-	
-	public Term(double value){
-		this.value = value;
-	}
 	
 	public Term plus(double next){
 		return plus(new Number(next));
@@ -55,9 +50,9 @@ public abstract class Term {
 		return this;
 	}
 	
-	public double resolve(){
+	public final double resolve(){
 		
-		double out = value;
+		double out = getValue();
 		
 		for(Step s : stepList){
 			switch(s.getOperation()){
@@ -76,9 +71,7 @@ public abstract class Term {
 		stepList.add(new Step(t,o));
 	}
 
-	public ArrayList<Variable> getVariables() {
-		
-		
+	public ArrayList<Variable> getVariables() {		
 		//If this is the last step in a sequence....
 		if(stepList.isEmpty()){
 			
@@ -118,11 +111,11 @@ public abstract class Term {
 		}
 	}
 	
+	public abstract double getValue();
+	
 	public abstract String getDisplayName();
 	
-	
-	public String toString(){	
-		
+	public String toString(){			
 		String out = "";
 		
 		if(!stepList.isEmpty()){
@@ -142,6 +135,4 @@ public abstract class Term {
 		
 		return out;
 	}
-
-
 }

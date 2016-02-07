@@ -11,19 +11,8 @@ public class TrigTerm extends Term{
 	Term term;
 	
 	public TrigTerm(Trig trigType, Term term) {
-		super(1);
 		this.term = term;
 		this.trigType = trigType;
-	}
-	
-	@Override
-	public double resolve(){
-		switch(trigType){
-		case SIN: return Math.sin(term.resolve());
-		case COS: return Math.cos(term.resolve());
-		case TAN: return Math.tan(term.resolve());
-		}
-		return 1;
 	}
 
 	@Override
@@ -32,14 +21,25 @@ public class TrigTerm extends Term{
 	}
 
 	public ArrayList<Variable> getVariables() {		
-		return term.getVariables();
+		
+		ArrayList<Variable> outList = term.getVariables();
+		outList.addAll(super.getVariables());		
+		
+		return outList;
 	}
 
 	@Override
 	public String getDisplayName() {
 		return trigType + "(" + term.toString() + ")";
 	}
-	
-	
 
+	@Override
+	public double getValue() {
+		switch(trigType){
+		case SIN: return Math.sin(term.resolve());
+		case COS: return  Math.cos(term.resolve());
+		case TAN: return  Math.tan(term.resolve());
+		}
+		return 1;
+	}
 }

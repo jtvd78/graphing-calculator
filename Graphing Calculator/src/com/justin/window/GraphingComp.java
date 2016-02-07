@@ -365,9 +365,10 @@ public class GraphingComp extends JComponent{
 				if(yScl > h/2){
 					yScl = h/2;
 				}
+				
 				if(xScl > w/2){
 					xScl = w/2;
-				}
+				}				
 
 				//sets x and y scale to 1 if they have been set to lower than 1.
 				if(xScl <= 1 || xScl == Double.NaN || xScl == Double.POSITIVE_INFINITY){

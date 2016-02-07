@@ -43,16 +43,14 @@ public class TermReader {
 			}else if(c == '^'){
 				nextOperation = Operation.EXPONENT;
 			}else{
-				
 				if(Character.isAlphabetic(c)){
 					
 					String letters = getFirstAlphabeticString(i,s);
 					i += letters.length() - 1;
 					
 					if(isFunctionString(letters)){
-						
-						int closingParen = getClosingParenIndex(i,s);
-						String functionArgumentsString = s.substring(i, closingParen);
+						int closingParen = getClosingParenIndex(i,s);						
+						String functionArgumentsString = s.substring(i + 2, closingParen + 1);
 						
 						//Move outer loop to the closing paren.
 						i = closingParen;
@@ -60,16 +58,15 @@ public class TermReader {
 						out = operate(out, getFunctionTerm(letters, readFunctionArguments(functionArgumentsString)), nextOperation);;
 					}else{
 						out = operate(out, new Variable(letters), nextOperation);					
-					}					
+					}				
 					
-					nextOperation = null;
-					
-					//Its a variable
 				}else{
+					//Its a number
 					int n = Integer.parseInt(c + "");					
-					out = operate(out, new Number(n), nextOperation);				
-					nextOperation = null;
-				}
+					out = operate(out, new Number(n), nextOperation);
+				}				
+				
+				nextOperation = null;
 			}
 		}
 		
@@ -78,13 +75,7 @@ public class TermReader {
 	
 	private static Term[] readFunctionArguments(String s){
 		
-		System.out.println("readFunctionArguments" + s);
-		
 		String[] arguments = s.split(",");
-		
-		System.out.println(arguments[0]);
-		
-		
 		Term[] out = new Term[arguments.length];
 		
 		int ctr = 0;
@@ -132,12 +123,7 @@ public class TermReader {
 		return false;
 	}
 	
-	private static Term getFunctionTerm(String function, Term[] argumentList){
-		
-		for(Term t : argumentList){
-			System.out.println(t);
-		}
-		
+	private static Term getFunctionTerm(String function, Term[] argumentList){	
 		
 		switch(function){
 		case "sin": return new TrigTerm(Trig.SIN, argumentList[0]);
@@ -169,8 +155,7 @@ public class TermReader {
 		return main;
 	}
 	
-	private static String getFirstAlphabeticString(int start, String s){
-		
+	private static String getFirstAlphabeticString(int start, String s){		
 		
 		int endIndex = start;
 		for(int i = start; i < s.length(); i++){

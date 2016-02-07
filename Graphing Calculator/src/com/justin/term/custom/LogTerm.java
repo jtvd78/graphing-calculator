@@ -11,14 +11,8 @@ public class LogTerm extends Term{
 	Term base;
 	
 	public LogTerm(Term main, Term base) {
-		super(1);
 		this.main = main;
 		this.base = base;
-	}
-	
-	@Override
-	public double resolve(){
-		return Math.log(main.resolve())/Math.log(base.resolve());
 	}
 
 	@Override
@@ -30,6 +24,7 @@ public class LogTerm extends Term{
 		
 		ArrayList<Variable> out = main.getVariables();
 		out.addAll(base.getVariables());
+		out.addAll(super.getVariables());
 		
 		return out;
 	}
@@ -37,5 +32,10 @@ public class LogTerm extends Term{
 	@Override
 	public String getDisplayName() {
 		return "log(" + main.getDisplayName() + ", " + base.getDisplayName() + ")";
+	}
+
+	@Override
+	public double getValue() {
+		return Math.log(main.resolve())/Math.log(base.resolve());
 	}
 }
