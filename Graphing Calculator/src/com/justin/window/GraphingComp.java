@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -13,10 +15,15 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
+import com.justin.function.Function;
 import com.justin.function.FunctionController;
-import com.justin.function.SpecialFunction;
+import com.justin.graphics.GraphicsWrapper;
+import com.justin.graphics.Rect;
 
 public class GraphingComp extends JComponent{
 	
@@ -33,13 +40,16 @@ public class GraphingComp extends JComponent{
 			int tickMarkSize = 20;
 		
 		//Font size
-			int fontSize = 12;
+			int fontSize = 20;
 			
 		//Whether to draw the background grid or not
 			boolean drawGrid = true;
 			
 		//Preferred Scale
 			int prefScale = fontSize*3;
+			
+		//Padding on each side of the function box
+			int functionBoxWidthPadding = 8;
 	
 	//---------END SETTINGS----------//
 		
@@ -94,6 +104,10 @@ public class GraphingComp extends JComponent{
 		int oldWidth = -1;
 		int oldHeight = -1;	
 		
+	//Stores the last known values for the width and height of each function in the function box
+		int lastFunctionBoxWidth;
+		int lastFunctionBoxHeight;
+		
 	//Constructor
 	public GraphingComp(FunctionController c){
 		
@@ -134,6 +148,8 @@ public class GraphingComp extends JComponent{
 		
 		drawFunctions(g);
 		drawXOval(g);
+		
+		drawFunctionBox(g);
 		//-----END GRAPH DRAWING--//
 	}
 	
@@ -259,6 +275,55 @@ public class GraphingComp extends JComponent{
 		g.drawLine((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY),(int)(currentX*xScl)+(int)(originX)+(circleSize/2),(int)(originY));
 	}
 	
+	//Draws functions in the corner
+	public void drawFunctionBox(Graphics g){
+		
+		if(functionController.getFunctionCount() == 0){
+			return;
+		}	
+		
+		GraphicsWrapper gw = new GraphicsWrapper(g);
+		
+		//Fill background rectangle
+		
+		//Each box has the same height. Get the height of the first one
+		int boxHeight = gw.getStringRect(functionController.getFunction(0).getFunctionString()).getHeight();
+		
+		//Find longest string		
+		int maxBoxWidth = 0;
+		for(Function f : functionController){
+			int stringWidth = gw.getStringRect(f.getFunctionString()).getWidth();
+			
+			if(stringWidth > maxBoxWidth){
+				maxBoxWidth = stringWidth;
+			}
+		}
+		
+		lastFunctionBoxWidth = maxBoxWidth;
+		lastFunctionBoxHeight = boxHeight;
+		
+		g.setColor(new Color(0,0,0,255/2));
+		g.fillRoundRect(0, 0, maxBoxWidth + functionBoxWidthPadding*2, boxHeight*functionController.getFunctionCount(), 15,15);
+		
+		//Draw Function Strings
+		int functionCounter = 0;
+		for(Function f : functionController){
+			
+			g.setColor(f.getColor());
+			String functionString = f.getFunctionString();		
+			Rect r = gw.getStringRect(functionString);
+			
+			boxHeight = r.getHeight();
+			if(r.getWidth() > maxBoxWidth){
+				maxBoxWidth = r.getWidth();
+			}			
+			
+			r = r.offset(functionBoxWidthPadding, functionCounter*r.getHeight());
+			gw.drawString(functionString, r);
+			functionCounter++;
+		}
+	}
+	
 	//Gets the quadrant of a point on the screen
 	public int getQuadrant(int x, int y){
 		if(x > (int)(originX)){
@@ -369,10 +434,12 @@ public class GraphingComp extends JComponent{
 				}				
 
 				//sets x and y scale to 1 if they have been set to lower than 1.
-				if(xScl <= 1 || xScl == Double.NaN || xScl == Double.POSITIVE_INFINITY){
+				
+				
+				if(xScl <= 1 || Double.isNaN(xScl)|| Double.isInfinite(xScl)){
 					xScl = 1;
 				}
-				if(yScl <= 1 || yScl == Double.NaN || yScl == Double.POSITIVE_INFINITY){
+				if(yScl <= 1 || Double.isNaN(yScl) || Double.isInfinite(yScl)){
 					yScl = 1;
 				}
 				repaint();
@@ -396,6 +463,19 @@ public class GraphingComp extends JComponent{
 			
 			repaint();
 		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			
+			if(e.getButton() == 3 && functionController.getFunctionCount() != 0){
+				
+				int functionLevel = mouseY/lastFunctionBoxHeight;
+				if(mouseX < lastFunctionBoxWidth + functionBoxWidthPadding*2 && functionLevel < functionController.getFunctionCount()){
+					Function f = functionController.getFunction(functionLevel);
+					showFunctionPopup(f, mouseX, mouseY);
+				}				
+			}
+		}
 
 		//-----START UNUSED METHODS----//
 		@Override
@@ -408,15 +488,70 @@ public class GraphingComp extends JComponent{
 		public void componentHidden(ComponentEvent e) {}
 
 		@Override
-		public void mouseClicked(MouseEvent e) {}
-
-		@Override
 		public void mouseEntered(MouseEvent e) {}
 
 		@Override
 		public void mouseExited(MouseEvent e) {}
 		//------END UNUSED METHODS----//
 		
+	}
+	
+	class FunctionPopup extends JPopupMenu{
+		Function f;
+		
+		JMenuItem color;
+		JMenuItem remove;
+		
+		
+		public FunctionPopup(){			
+			PressListener pl = new PressListener();
+			
+			color = new JMenuItem("Change color");
+			remove = new JMenuItem("Remove function");
+			
+			color.addActionListener(pl);
+			remove.addActionListener(pl);			
+			
+			add(color);
+			add(remove);		
+		}
+		
+		public void setFunction(Function f){
+			this.f = f;
+		}
+		
+		class PressListener implements ActionListener{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(e.getSource() == color){
+					
+					Color newCol;
+					if((newCol = JColorChooser.showDialog(GraphingComp.this,"Chose Function Color",f.getColor())) != null){
+						f.setColor(newCol);
+						GraphingComp.this.repaint();
+					}					
+					
+				}else if(e.getSource() == remove){
+					
+					functionController.removeFunction(f);
+					GraphingComp.this.repaint();
+					
+				}
+			}
+		}
+	}
+	
+	
+	FunctionPopup functionPopup;
+	
+	private void showFunctionPopup(Function f, int x, int y){
+		
+		if(functionPopup == null){
+			functionPopup = new FunctionPopup();
+		}
+		functionPopup.setFunction(f);
+		functionPopup.show(this, x, y);
 	}
 	
 	//Zooms In

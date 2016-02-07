@@ -4,6 +4,10 @@ import com.justin.term.custom.LogTerm;
 import com.justin.term.custom.Trig;
 import com.justin.term.custom.TrigTerm;
 
+
+// log(1/x,x) doesnt work
+// log(sin(x)^2,2) doesnt work
+
 public class TermReader {
 	
 	//PEMDAS
@@ -57,13 +61,25 @@ public class TermReader {
 						
 						out = operate(out, getFunctionTerm(letters, readFunctionArguments(functionArgumentsString)), nextOperation);;
 					}else{
-						out = operate(out, new Variable(letters), nextOperation);					
+						
+						//Constants
+						
+						Term constant;
+						if((constant = getConstant(letters)) != null){
+							out = operate(out, constant,nextOperation);
+						}else{
+							out = operate(out, new Variable(letters), nextOperation);
+						}			
 					}				
 					
 				}else{
 					//Its a number
-					int n = Integer.parseInt(c + "");					
-					out = operate(out, new Number(n), nextOperation);
+					
+					String numbers = getFirstNumericString(i,s);
+					i += numbers.length() - 1;					
+					
+					double d = Double.parseDouble(numbers);
+					out = operate(out, new Number(d), nextOperation);
 				}				
 				
 				nextOperation = null;
@@ -123,6 +139,15 @@ public class TermReader {
 		return false;
 	}
 	
+	private static Term getConstant(String s){
+		
+		switch(s){
+		case "e": return Constant.getConstant(Constant.e);
+		case "pi": return Constant.getConstant(Constant.pi);
+		}
+		return null;
+	}
+	
 	private static Term getFunctionTerm(String function, Term[] argumentList){	
 		
 		switch(function){
@@ -168,5 +193,36 @@ public class TermReader {
 		}
 		
 		return s.substring(start, endIndex + 1 );
+	}
+	
+	private static String getFirstNumericString(int start, String s){
+		int endIndex = start;
+		for(int i = start; i < s.length(); i++){
+			
+			if(isNumeric(s.charAt(i))){
+				endIndex = i;
+			}else{
+				break;
+			}
+		}
+		
+		return s.substring(start, endIndex + 1 );
+	}
+	
+	private static boolean isNumeric(char c){
+		switch(c){
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+		case '.': return true;
+		}
+		return false;
 	}
 }

@@ -12,7 +12,6 @@ import javax.swing.UIManager;
 
 import com.justin.function.FunctionController;
 import com.justin.window.dialog.AddFunctionPrompt;
-import com.justin.window.dialog.EditFunctionsPrompt;
 
 public class MainWindow extends JFrame{
 	
@@ -43,7 +42,6 @@ public class MainWindow extends JFrame{
 	}
 	
 	private void addNewFunction(){new AddFunctionPrompt(this);}
-	private void editFunctions(){new EditFunctionsPrompt(this);}
 	
 	public FunctionController getFunctionController(){
 		return fc;
@@ -64,7 +62,6 @@ public class MainWindow extends JFrame{
 			file.add(new JMenuItem("Exit"));
 			
 			functions.add(new JMenuItem("Add New Function"));
-			functions.add(new JMenuItem("Edit Current Functions"));
 			
 			options.add(new JMenuItem("Toggle X-Lock"));
 			
@@ -103,7 +100,6 @@ public class MainWindow extends JFrame{
 				switch(title){
 				case "Exit" : System.exit(0); break;
 				case "Add New Function" : addNewFunction(); break;
-				case "Edit Current Functions" : editFunctions(); break;
 				case "About" : showAbout(); break;
 				case "Toggle X-Lock": gc.toggleXLock(); break;
 				}

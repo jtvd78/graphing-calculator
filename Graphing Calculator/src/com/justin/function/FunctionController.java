@@ -2,13 +2,18 @@ package com.justin.function;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class FunctionController {
+public class FunctionController implements Iterable<Function>{
 	
 	ArrayList<Function> functionList = new ArrayList<Function>();
 	
 	public void addFunction(Function f ){
 		functionList.add(f);
+	}
+	
+	public Function getFunction(int index){
+		return functionList.get(index);
 	}
 	
 	public double getY(double x,int funct){
@@ -33,5 +38,14 @@ public class FunctionController {
 
 	public void removeFunction(int num) {
 		functionList.remove(num);
+	}
+
+	@Override
+	public Iterator<Function> iterator() {
+		return functionList.iterator();
+	}
+
+	public void removeFunction(Function f) {
+		functionList.remove(f);
 	}
 }
