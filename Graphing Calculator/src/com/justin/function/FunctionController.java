@@ -7,7 +7,7 @@ public class FunctionController {
 	
 	ArrayList<Function> functionList = new ArrayList<Function>();
 	
-	public void addFunction(Function f){
+	public void addFunction(Function f ){
 		functionList.add(f);
 	}
 	

@@ -98,8 +98,6 @@ public class GraphingComp extends JComponent{
 	public GraphingComp(FunctionController c){
 		
 		//Random functions added for testing
-		c.addFunction(new SpecialFunction("(x^2 + (1(x+1)))/x",Color.blue));
-		c.addFunction(new SpecialFunction("x^2", Color.RED));
 		this.functionController = c;
 		
 		//Listener is the subclass that implements all of the input interfaces
