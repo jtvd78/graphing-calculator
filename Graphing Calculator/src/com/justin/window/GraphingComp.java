@@ -46,7 +46,7 @@ public class GraphingComp extends JComponent{
 			boolean drawGrid = true;
 			
 		//Preferred Scale
-			int prefScale = fontSize*3;
+			int prefScale = (int) (fontSize*2.5);
 			
 		//Padding on each side of the function box
 			int functionBoxWidthPadding = 8;
@@ -287,12 +287,12 @@ public class GraphingComp extends JComponent{
 		//Fill background rectangle
 		
 		//Each box has the same height. Get the height of the first one
-		int boxHeight = gw.getStringRect(functionController.getFunction(0).getFunctionString()).getHeight();
+		int boxHeight = gw.getStringRect(functionController.getFunction(0).toString()).getHeight();
 		
 		//Find longest string		
 		int maxBoxWidth = 0;
 		for(Function f : functionController){
-			int stringWidth = gw.getStringRect(f.getFunctionString()).getWidth();
+			int stringWidth = gw.getStringRect(f.toString()).getWidth();
 			
 			if(stringWidth > maxBoxWidth){
 				maxBoxWidth = stringWidth;
@@ -310,7 +310,7 @@ public class GraphingComp extends JComponent{
 		for(Function f : functionController){
 			
 			g.setColor(f.getColor());
-			String functionString = f.getFunctionString();		
+			String functionString = f.toString();		
 			Rect r = gw.getStringRect(functionString);
 			
 			boxHeight = r.getHeight();
@@ -433,9 +433,7 @@ public class GraphingComp extends JComponent{
 					xScl = w/2;
 				}				
 
-				//sets x and y scale to 1 if they have been set to lower than 1.
-				
-				
+				//sets x and y scale to 1 if they have been set to lower than 1.				
 				if(xScl <= 1 || Double.isNaN(xScl)|| Double.isInfinite(xScl)){
 					xScl = 1;
 				}

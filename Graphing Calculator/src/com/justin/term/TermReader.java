@@ -1,10 +1,5 @@
 package com.justin.term;
 
-import com.justin.term.custom.LogTerm;
-import com.justin.term.custom.Trig;
-import com.justin.term.custom.TrigTerm;
-
-
 // log(1/x,x) doesnt work
 // log(sin(x)^2,2) doesnt work
 
@@ -68,7 +63,7 @@ public class TermReader {
 						if((constant = getConstant(letters)) != null){
 							out = operate(out, constant,nextOperation);
 						}else{
-							out = operate(out, new Variable(letters), nextOperation);
+							out = operate(out, new VariableTerm(letters), nextOperation);
 						}			
 					}				
 					
@@ -79,7 +74,7 @@ public class TermReader {
 					i += numbers.length() - 1;					
 					
 					double d = Double.parseDouble(numbers);
-					out = operate(out, new Number(d), nextOperation);
+					out = operate(out, new NumberTerm(d), nextOperation);
 				}				
 				
 				nextOperation = null;
@@ -142,8 +137,8 @@ public class TermReader {
 	private static Term getConstant(String s){
 		
 		switch(s){
-		case "e": return Constant.getConstant(Constant.e);
-		case "pi": return Constant.getConstant(Constant.pi);
+		case "e": return ConstantTerm.getConstant(ConstantTerm.e);
+		case "pi": return ConstantTerm.getConstant(ConstantTerm.pi);
 		}
 		return null;
 	}
@@ -151,9 +146,9 @@ public class TermReader {
 	private static Term getFunctionTerm(String function, Term[] argumentList){	
 		
 		switch(function){
-		case "sin": return new TrigTerm(Trig.SIN, argumentList[0]);
-		case "cos": return new TrigTerm(Trig.COS, argumentList[0]);
-		case "tan": return new TrigTerm(Trig.TAN, argumentList[0]);
+		case "sin": return new TrigTerm(TrigTerm.SIN, argumentList[0]);
+		case "cos": return new TrigTerm(TrigTerm.COS, argumentList[0]);
+		case "tan": return new TrigTerm(TrigTerm.TAN, argumentList[0]);
 		case "log": return new LogTerm(argumentList[0], argumentList[1]);
 		}
 		return null;

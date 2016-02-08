@@ -1,9 +1,6 @@
-package com.justin.term.custom;
+package com.justin.term;
 
 import java.util.ArrayList;
-
-import com.justin.term.Term;
-import com.justin.term.Variable;
 
 public class LogTerm extends Term{
 
@@ -20,9 +17,9 @@ public class LogTerm extends Term{
 		return false;
 	}
 	
-	public ArrayList<Variable> getVariables() {
+	public ArrayList<VariableTerm> getVariables() {
 		
-		ArrayList<Variable> out = main.getVariables();
+		ArrayList<VariableTerm> out = main.getVariables();
 		out.addAll(base.getVariables());
 		out.addAll(super.getVariables());
 		

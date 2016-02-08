@@ -33,7 +33,7 @@ public class FunctionController implements Iterable<Function>{
 	}
 	
 	public String getFunctionString(int num){
-		return functionList.get(num).getFunctionString();
+		return functionList.get(num).toString();
 	}
 
 	public void removeFunction(int num) {
