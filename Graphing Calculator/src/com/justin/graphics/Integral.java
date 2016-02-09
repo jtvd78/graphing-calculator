@@ -2,7 +2,6 @@ package com.justin.graphics;
 
 import java.awt.Frame;
 import java.awt.GridLayout;
-import java.awt.Point;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,7 +17,7 @@ import com.justin.term.Variable;
 
 public class Integral {
 	
-	private static final int INTEGRAL_PRECISION = 10000;
+	private static final int INTEGRAL_PRECISION = 1000;
 	
 	Function f;
 	double startX;

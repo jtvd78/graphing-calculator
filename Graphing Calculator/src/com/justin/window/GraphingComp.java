@@ -292,12 +292,12 @@ public class GraphingComp extends JComponent{
 		
 		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
 		
-		int round = 100000;
+		int round = 1000;
 		
 		DoublePoint center = integral.getCenterOfGravity();
 		GraphicsWrapper gw = new GraphicsWrapper(g);
 		g.setColor(Color.BLACK);
-		gw.drawCenteredString((double)(Math.round(integral.getArea()*100000))/100000 + "", center.getX()*xScl + originX, -center.getY()*yScl + originY);
+		gw.drawCenteredString((double)(Math.round(integral.getArea()*round))/round + "", center.getX()*xScl + originX, -center.getY()*yScl + originY);
 		
 	}
 	
@@ -616,7 +616,19 @@ public class GraphingComp extends JComponent{
 				}else if(e.getSource() == remove){
 					
 					functionController.removeFunction(f);
-					GraphingComp.this.repaint();
+					
+					ArrayList<Integral> removeList = new ArrayList<Integral>();
+					for(Integral i : integralList){
+						if(i.getF().equals(f)){
+							removeList.add(i);
+						}
+					}
+					
+					for(Integral i : removeList){
+						integralList.remove(i);
+					}				
+					
+					GraphingComp.this.repaint();				
 					
 				}else if(e.getSource() == integrate){
 					
@@ -626,8 +638,7 @@ public class GraphingComp extends JComponent{
 				}
 			}
 		}
-	}
-	
+	}	
 	
 	FunctionPopup functionPopup;
 	
