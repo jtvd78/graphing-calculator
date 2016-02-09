@@ -146,4 +146,8 @@ public class GraphicsWrapper {
 		
 		return new Rect(0,0,(int)bounds.getWidth(), fm.getAscent() + fm.getDescent());
 	}
+
+	public void drawCenteredString(String s, double x, double y) {
+		drawCenteredString(s, (int)x, (int)y);
+	}
 }

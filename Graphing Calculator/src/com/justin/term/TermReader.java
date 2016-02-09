@@ -82,7 +82,7 @@ public class TermReader {
 					i += numbers.length() - 1;
 					
 					double d = Double.parseDouble(numbers);		
-					out = operate(out, new Number(d), nextOperation);
+					out = operate(out, new NumberTerm(d), nextOperation);
 				}				
 				
 				nextOperation = null;

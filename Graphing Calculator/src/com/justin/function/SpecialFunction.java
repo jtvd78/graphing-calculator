@@ -8,6 +8,12 @@ import com.justin.term.TermReader;
 public class SpecialFunction extends Function{
 	
 	Term mainTerm;
+	
+	public SpecialFunction(Term t) {
+		
+		super(Color.RED);
+		mainTerm = t;
+	}
 
 	public SpecialFunction(String functionString, Color c) {
 		
@@ -18,7 +24,6 @@ public class SpecialFunction extends Function{
 	@Override
 	public double getY(double x) {
 		
-//		System.out.println("Before");
 		mainTerm.setVariable("x", x);
 		return mainTerm.resolve();
 		

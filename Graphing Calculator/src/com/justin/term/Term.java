@@ -6,7 +6,7 @@ public abstract class Term {
 	ArrayList<Step> stepList = new ArrayList<Step>();
 	
 	public Term plus(double next){
-		return plus(new Number(next));
+		return plus(new NumberTerm(next));
 	}
 	
 	public Term plus(Term next){
@@ -15,7 +15,7 @@ public abstract class Term {
 	}
 	
 	public Term dividedBy(double next){
-		return dividedBy(new Number(next));
+		return dividedBy(new NumberTerm(next));
 	}
 	
 	public Term dividedBy(Term next){
@@ -24,7 +24,7 @@ public abstract class Term {
 	}
 	
 	public Term times(double next){
-		return times(new Number(next));
+		return times(new NumberTerm(next));
 	}
 	
 	public Term times(Term next){
@@ -33,7 +33,7 @@ public abstract class Term {
 	}
 	
 	public Term minus(double next){
-		return minus(new Number(next));
+		return minus(new NumberTerm(next));
 	}
 	
 	public Term minus(Term next) {
@@ -42,7 +42,7 @@ public abstract class Term {
 	}
 	
 	public Term toThe(double next){
-		return toThe(new Number(next));
+		return toThe(new NumberTerm(next));
 	}
 	
 	public Term toThe(Term next) {

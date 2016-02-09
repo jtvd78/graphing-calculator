@@ -24,6 +24,7 @@ import javax.swing.JPopupMenu;
 
 import com.justin.function.Function;
 import com.justin.function.FunctionController;
+import com.justin.graphics.DoublePoint;
 import com.justin.graphics.GraphicsWrapper;
 import com.justin.graphics.Integral;
 import com.justin.graphics.Rect;
@@ -155,7 +156,7 @@ public class GraphingComp extends JComponent{
 		
 		
 		for(Integral i : integralList){
-			System.out.println(drawIntegral(i, g));
+			drawIntegral(i, g);
 		}
 		
 		drawAxis(g);
@@ -248,9 +249,7 @@ public class GraphingComp extends JComponent{
 	 * @param endX - Ending x of the integral
 	 * @return the value of the integral
 	 */
-	public double drawIntegral(Integral integral, Graphics g){
-		
-		double out = 0;
+	public void drawIntegral(Integral integral, Graphics g){
 
 		//X positions (px) that the graph should start and stop (edge of the screen)
 		int begin = -(int)(originX);
@@ -274,7 +273,6 @@ public class GraphingComp extends JComponent{
 			if(xOnGraph > integral.getStartX() && xOnGraph < integral.getEndX()){
 				
 				double yPointGraph =  f.getY(xOnGraph);
-				out += yPointGraph/xScl;
 				
 				xPolyPoints.add(x + (int) originX);
 				yPolyPoints.add((int) (-(yPointGraph*yScl) + originY));
@@ -294,7 +292,13 @@ public class GraphingComp extends JComponent{
 		
 		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
 		
-		return out;
+		int round = 100000;
+		
+		DoublePoint center = integral.getCenterOfGravity();
+		GraphicsWrapper gw = new GraphicsWrapper(g);
+		g.setColor(Color.BLACK);
+		gw.drawCenteredString((double)(Math.round(integral.getArea()*100000))/100000 + "", center.getX()*xScl + originX, -center.getY()*yScl + originY);
+		
 	}
 	
 	//Draws the functions

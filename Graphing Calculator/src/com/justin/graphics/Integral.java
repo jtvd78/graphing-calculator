@@ -2,16 +2,23 @@ package com.justin.graphics;
 
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Point;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.justin.function.Function;
+import com.justin.function.SpecialFunction;
+import com.justin.term.FunctionTerm;
+import com.justin.term.NumberTerm;
+import com.justin.term.Term;
+import com.justin.term.Variable;
 
 public class Integral {
+	
+	private static final int INTEGRAL_PRECISION = 10000;
 	
 	Function f;
 	double startX;
@@ -33,6 +40,25 @@ public class Integral {
 
 	public double getEndX() {
 		return endX;
+	}
+	
+	public double getArea(){
+		return integrate(f, startX, endX);
+	}
+	
+	public double getMomentY(){
+		Term t = new FunctionTerm(f, new Variable("x"));
+		return integrate(new SpecialFunction(new Variable("x").times(t)),startX, endX);
+	}
+	
+	public double getMomentX(){
+		Term t = new FunctionTerm(f, new Variable("x"));
+		return integrate(new SpecialFunction(new NumberTerm(0.5).times(t.toThe(2))),startX, endX);
+	}
+	
+	public DoublePoint getCenterOfGravity(){
+		double area = getArea();
+		return new DoublePoint(getMomentY()/area, getMomentX()/area);
 	}
 
 	public static Integral showNewIntegralPopupDialog(Frame frame, Function f) {
@@ -57,5 +83,20 @@ public class Integral {
 		}
 		
 		return null;
+	}
+	
+	public static double integrate(Function f, double start, double end){
+		double out = 0;
+		
+		double range = end - start;
+		double changeX = range/INTEGRAL_PRECISION;
+		
+		//x = x-point in pixels
+		for(double x = start; x < end; x+=changeX){
+			double yPointGraph =  f.getY(x);
+			out += yPointGraph*changeX;
+		}
+		
+		return out;
 	}
 }

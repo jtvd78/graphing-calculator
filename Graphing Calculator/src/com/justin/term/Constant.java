@@ -1,6 +1,6 @@
 package com.justin.term;
 
-public class Constant extends Number{
+public class Constant extends NumberTerm{
 
 	String name;
 	

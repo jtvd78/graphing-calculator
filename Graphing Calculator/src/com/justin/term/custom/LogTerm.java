@@ -10,11 +10,7 @@ public class LogTerm extends Term{
 	Term main;
 	Term base;
 	
-	public LogTerm(Term main, Term base) {
-		
-		System.out.println(main);
-		System.out.println(base);
-		
+	public LogTerm(Term main, Term base) {		
 		this.main = main;
 		this.base = base;
 	}
