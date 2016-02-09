@@ -16,4 +16,8 @@ public class Step {
 	public Term getTerm(){
 		return t;
 	}
+	
+	public String toString(){
+		return o.toString();
+	}
 }

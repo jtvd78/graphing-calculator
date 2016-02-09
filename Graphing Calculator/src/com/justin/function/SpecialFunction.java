@@ -18,6 +18,7 @@ public class SpecialFunction extends Function{
 	@Override
 	public double getY(double x) {
 		
+//		System.out.println("Before");
 		mainTerm.setVariable("x", x);
 		return mainTerm.resolve();
 		

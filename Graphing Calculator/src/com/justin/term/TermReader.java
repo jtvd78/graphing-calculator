@@ -5,18 +5,13 @@ import com.justin.term.custom.Trig;
 import com.justin.term.custom.TrigTerm;
 
 
-// log(1/x,x) doesnt work
-// log(sin(x)^2,2) doesnt work
+//Negative variables don't work (-x)
 
 public class TermReader {
-	
-	//PEMDAS
-	//Parenthesis
-	//Exponents
-	//Multiplication / Division
-	//Addition / Subtraction
 
 	public static Term readTerm(String s){
+		
+		System.out.println("read " + s);
 		
 		Term out = null;
 		Operation nextOperation = null;		
@@ -42,8 +37,6 @@ public class TermReader {
 				nextOperation = Operation.DIVISION;
 			}else if(c == '+'){
 				nextOperation = Operation.ADDITION;
-			}else if(c == '-'){
-				nextOperation = Operation.SUBTRACTION;
 			}else if(c == '^'){
 				nextOperation = Operation.EXPONENT;
 			}else{
@@ -60,8 +53,7 @@ public class TermReader {
 						i = closingParen;
 						
 						out = operate(out, getFunctionTerm(letters, readFunctionArguments(functionArgumentsString)), nextOperation);;
-					}else{
-						
+					}else{						
 						//Constants
 						
 						Term constant;
@@ -75,10 +67,21 @@ public class TermReader {
 				}else{
 					//Its a number
 					
-					String numbers = getFirstNumericString(i,s);
-					i += numbers.length() - 1;					
+					String numbers;
+					if(c == '-'){
+						
+						if(nextOperation == null && out != null){
+							nextOperation = Operation.SUBTRACTION;
+							continue;
+						}
+						
+						numbers = "-" + getFirstNumericString(i+1,s);
+					}else{
+						numbers = getFirstNumericString(i,s);
+					}
+					i += numbers.length() - 1;
 					
-					double d = Double.parseDouble(numbers);
+					double d = Double.parseDouble(numbers);		
 					out = operate(out, new Number(d), nextOperation);
 				}				
 				
@@ -148,7 +151,7 @@ public class TermReader {
 		return null;
 	}
 	
-	private static Term getFunctionTerm(String function, Term[] argumentList){	
+	private static Term getFunctionTerm(String function, Term[] argumentList){
 		
 		switch(function){
 		case "sin": return new TrigTerm(Trig.SIN, argumentList[0]);

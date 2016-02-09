@@ -11,6 +11,10 @@ public class LogTerm extends Term{
 	Term base;
 	
 	public LogTerm(Term main, Term base) {
+		
+		System.out.println(main);
+		System.out.println(base);
+		
 		this.main = main;
 		this.base = base;
 	}
@@ -31,7 +35,7 @@ public class LogTerm extends Term{
 
 	@Override
 	public String getDisplayName() {
-		return "log(" + main.getDisplayName() + ", " + base.getDisplayName() + ")";
+		return "log(" + main + ", " + base + ")";
 	}
 
 	@Override
