@@ -20,9 +20,9 @@ public class FunctionTerm extends Term{
 	}
 	
 	@Override
-	public ArrayList<Variable> getVariables(){
+	public ArrayList<VariableTerm> getVariables(){
 		
-		ArrayList<Variable> out = mainTerm.getVariables();
+		ArrayList<VariableTerm> out = mainTerm.getVariables();
 		out.addAll(super.getVariables());
 		
 		return out;
@@ -30,7 +30,7 @@ public class FunctionTerm extends Term{
 
 	@Override
 	public String getDisplayName() {
-		return f.getFunctionString();
+		return f.toString();
 	}
 
 	@Override

@@ -1,13 +1,13 @@
 package com.justin.term;
 
-public class Constant extends NumberTerm{
+public class ConstantTerm extends NumberTerm{
 
 	String name;
 	
 	public final static int e = 0;
 	public final static int pi = 1;
 	
-	private Constant(double value, String name) {
+	private ConstantTerm(double value, String name) {
 		super(value);
 		this.name = name;
 	}
@@ -17,10 +17,10 @@ public class Constant extends NumberTerm{
 		return name;
 	}
 	
-	public static Constant getConstant(int constant){
+	public static ConstantTerm getConstant(int constant){
 		switch(constant){
-		case e: return new Constant(Math.E, "e");
-		case pi:return new Constant(Math.PI, "π");
+		case e: return new ConstantTerm(Math.E, "e");
+		case pi:return new ConstantTerm(Math.PI, "π");
 		}
 		return null;
 	}

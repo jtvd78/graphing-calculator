@@ -9,11 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.justin.function.Function;
-import com.justin.function.SpecialFunction;
 import com.justin.term.FunctionTerm;
 import com.justin.term.NumberTerm;
 import com.justin.term.Term;
-import com.justin.term.Variable;
+import com.justin.term.VariableTerm;
 
 public class Integral {
 	
@@ -46,13 +45,13 @@ public class Integral {
 	}
 	
 	public double getMomentY(){
-		Term t = new FunctionTerm(f, new Variable("x"));
-		return integrate(new SpecialFunction(new Variable("x").times(t)),startX, endX);
+		Term t = new FunctionTerm(f, new VariableTerm("x"));
+		return integrate(new Function(new VariableTerm("x").times(t)),startX, endX);
 	}
 	
 	public double getMomentX(){
-		Term t = new FunctionTerm(f, new Variable("x"));
-		return integrate(new SpecialFunction(new NumberTerm(0.5).times(t.toThe(2))),startX, endX);
+		Term t = new FunctionTerm(f, new VariableTerm("x"));
+		return integrate(new Function(new NumberTerm(0.5).times(t.toThe(2))),startX, endX);
 	}
 	
 	public DoublePoint getCenterOfGravity(){

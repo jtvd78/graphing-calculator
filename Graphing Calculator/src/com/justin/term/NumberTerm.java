@@ -21,5 +21,5 @@ public class NumberTerm extends Term{
 	@Override
 	public double getValue() {
 		return value;
-	}	
+	}
 }

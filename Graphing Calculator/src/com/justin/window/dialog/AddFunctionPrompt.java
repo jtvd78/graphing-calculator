@@ -16,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.justin.function.SpecialFunction;
+import com.justin.function.Function;
 import com.justin.window.MainWindow;
 
 public class AddFunctionPrompt extends JDialog{
@@ -76,7 +76,7 @@ public class AddFunctionPrompt extends JDialog{
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if(e.getKeyCode() == KeyEvent.VK_ENTER){
-				mw.getFunctionController().addFunction(new SpecialFunction(t.getText(),funcColor));
+				mw.getFunctionController().addFunction(new Function(t.getText(),funcColor));
 				mw.repaint();
 					
 				closeWindow();
@@ -99,7 +99,7 @@ public class AddFunctionPrompt extends JDialog{
 				funcColor = JColorChooser.showDialog(getFrame(),"Chose Function Color",Color.red);
 			}else if(e.getSource() == b){
 
-				mw.getFunctionController().addFunction(new SpecialFunction(t.getText(),funcColor));
+				mw.getFunctionController().addFunction(new Function(t.getText(),funcColor));
 				mw.repaint();
 					
 				closeWindow();

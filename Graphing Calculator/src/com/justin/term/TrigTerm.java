@@ -1,16 +1,17 @@
-package com.justin.term.custom;
+package com.justin.term;
 
 import java.util.ArrayList;
 
-import com.justin.term.Term;
-import com.justin.term.Variable;
-
 public class TrigTerm extends Term{
+	
+	public final static int SIN = 0;
+	public final static int COS = 1;
+	public final static int TAN = 2;
 
-	Trig trigType;
+	int trigType;
 	Term term;
 	
-	public TrigTerm(Trig trigType, Term term) {
+	public TrigTerm(int trigType, Term term) {
 		this.term = term;
 		this.trigType = trigType;
 	}
@@ -20,9 +21,9 @@ public class TrigTerm extends Term{
 		return false;
 	}
 
-	public ArrayList<Variable> getVariables() {		
+	public ArrayList<VariableTerm> getVariables() {		
 		
-		ArrayList<Variable> outList = term.getVariables();
+		ArrayList<VariableTerm> outList = term.getVariables();
 		outList.addAll(super.getVariables());		
 		
 		return outList;

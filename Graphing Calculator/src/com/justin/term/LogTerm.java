@@ -1,16 +1,13 @@
-package com.justin.term.custom;
+package com.justin.term;
 
 import java.util.ArrayList;
-
-import com.justin.term.Term;
-import com.justin.term.VariableTerm;
 
 public class LogTerm extends Term{
 
 	Term main;
 	Term base;
 	
-	public LogTerm(Term main, Term base) {		
+	public LogTerm(Term main, Term base) {
 		this.main = main;
 		this.base = base;
 	}
@@ -31,7 +28,7 @@ public class LogTerm extends Term{
 
 	@Override
 	public String getDisplayName() {
-		return "log(" + main + ", " + base + ")";
+		return "log(" + main.getDisplayName() + ", " + base.getDisplayName() + ")";
 	}
 
 	@Override

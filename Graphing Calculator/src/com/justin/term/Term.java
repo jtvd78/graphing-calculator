@@ -196,29 +196,29 @@ public abstract class Term {
 		stepList.add(new Step(t,o));
 	}
 
-	public ArrayList<Variable> getVariables() {		
+	public ArrayList<VariableTerm> getVariables() {		
 		//If this is the last step in a sequence....
 		if(stepList.isEmpty()){
 			
 			if(isVariable()){
-				ArrayList<Variable> out = new ArrayList<Variable>();
-				out.add((Variable)this);
+				ArrayList<VariableTerm> out = new ArrayList<VariableTerm>();
+				out.add((VariableTerm)this);
 				return out;
 			}else{
-				return new ArrayList<Variable>();
+				return new ArrayList<VariableTerm>();
 			}
 		}	
 		
 		//If this is not the last step...
 		
-		ArrayList<Variable> outList = stepList.get(0).getTerm().getVariables();
+		ArrayList<VariableTerm> outList = stepList.get(0).getTerm().getVariables();
 		
 		for(int i = 1; i < stepList.size(); i++){
 			outList.addAll(stepList.get(i).getTerm().getVariables());
 		}
 		
 		if(isVariable()){
-			outList.add((Variable)this);
+			outList.add((VariableTerm)this);
 		}
 		
 		return outList;
@@ -227,9 +227,9 @@ public abstract class Term {
 	public abstract boolean isVariable();
 
 	public void setVariable(String name, double x) {
-		ArrayList<Variable> varList = getVariables();
+		ArrayList<VariableTerm> varList = getVariables();
 		
-		for(Variable v : varList){
+		for(VariableTerm v : varList){
 			if(v.getName().equals(name)){
 				v.setValue(x);
 			}
@@ -259,5 +259,24 @@ public abstract class Term {
 		}	
 		
 		return out;
+	}
+	
+	public class Step {
+		
+		Operation o;
+		Term t;
+
+		public Step(Term t, Operation o){
+			this.t = t;
+			this.o = o;
+		}
+		
+		public Operation getOperation(){
+			return o;
+		}
+		
+		public Term getTerm(){
+			return t;
+		}
 	}
 }

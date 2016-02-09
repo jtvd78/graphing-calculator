@@ -1,10 +1,10 @@
 package com.justin.term;
-public class Variable extends Term{
+public class VariableTerm extends Term{
 
 	String name;
 	double value;
 	
-	public Variable(String name) {
+	public VariableTerm(String name) {
 		this.name = name;
 		
 		//Default
