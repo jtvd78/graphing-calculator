@@ -155,9 +155,9 @@ public class TermReader {
 	private static Term getFunctionTerm(String function, Term[] argumentList){
 		
 		switch(function){
-		case "sin": return new TrigTerm(TrigTerm.SIN, argumentList[0]);
-		case "cos": return new TrigTerm(TrigTerm.COS, argumentList[0]);
-		case "tan": return new TrigTerm(TrigTerm.TAN, argumentList[0]);
+		case "sin": return new TrigTerm(TrigTerm.Type.SIN, argumentList[0]);
+		case "cos": return new TrigTerm(TrigTerm.Type.COS, argumentList[0]);
+		case "tan": return new TrigTerm(TrigTerm.Type.TAN, argumentList[0]);
 		case "log": return new LogTerm(argumentList[0], argumentList[1]);
 		}
 		return null;

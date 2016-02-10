@@ -4,14 +4,23 @@ import java.util.ArrayList;
 
 public class TrigTerm extends Term{
 	
-	public final static int SIN = 0;
-	public final static int COS = 1;
-	public final static int TAN = 2;
+	public enum Type{
+		SIN("sin"), COS("cos"), TAN("tan");
+		
+		private String name;
+		private Type(String name){
+			this.name = name;
+		}
+		
+		public String toString(){
+			return name;
+		}
+	}
 
-	int trigType;
+	Type trigType;
 	Term term;
 	
-	public TrigTerm(int trigType, Term term) {
+	public TrigTerm(Type trigType, Term term) {
 		this.term = term;
 		this.trigType = trigType;
 	}
