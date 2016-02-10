@@ -14,15 +14,19 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.justin.function.Function;
 import com.justin.function.FunctionController;
+import com.justin.graphics.DoublePoint;
 import com.justin.graphics.GraphicsWrapper;
+import com.justin.graphics.Integral;
 import com.justin.graphics.Rect;
 
 public class GraphingComp extends JComponent{
@@ -108,8 +112,17 @@ public class GraphingComp extends JComponent{
 		int lastFunctionBoxWidth;
 		int lastFunctionBoxHeight;
 		
+	//ArrayList of integrals to be drawn
+		ArrayList<Integral> integralList = new ArrayList<Integral>();
+	
+	//Parent frame
+		JFrame frame;
+		
+		
 	//Constructor
-	public GraphingComp(FunctionController c){
+	public GraphingComp(JFrame frame, FunctionController c){
+		
+		this.frame = frame;
 		
 		//Random functions added for testing
 		this.functionController = c;
@@ -140,6 +153,12 @@ public class GraphingComp extends JComponent{
 		
 		//----START GRAPH DRAWING----//
 		drawBackground(g);
+		
+		
+		for(Integral i : integralList){
+			drawIntegral(i, g);
+		}
+		
 		drawAxis(g);
 		
 		//Draw currentX line
@@ -222,8 +241,70 @@ public class GraphingComp extends JComponent{
 		g.drawLine(0, (int)(originY), w, (int)(originY)); g.drawLine(0, (int)(originY)-1, w, (int)(originY)-1); g.drawLine(0, (int)(originY)+1, w, (int)(originY)+1);
 	}
 	
+	/**
+	 * Draws an integral onto the graphics object, and returns the value of the integral
+	 * @param f - Function to integrate
+	 * @param g - Graphics object to draw on to
+	 * @param startX - Starting x of the integral
+	 * @param endX - Ending x of the integral
+	 * @return the value of the integral
+	 */
+	public void drawIntegral(Integral integral, Graphics g){
+
+		//X positions (px) that the graph should start and stop (edge of the screen)
+		int begin = -(int)(originX);
+		int end = w+begin;
+		
+		Function f = integral.getF();
+		
+		g.setColor(f.getColor()); //Sets color to the graph's corresponding color
+		
+		ArrayList<Integer> xPolyPoints = new ArrayList<Integer>();
+		ArrayList<Integer> yPolyPoints = new ArrayList<Integer>();
+		
+		xPolyPoints.add((int) (integral.getStartX()*xScl + (int) originX));
+		yPolyPoints.add((int)originY);	
+		
+		//x = x-point in pixels
+		for(int x = begin; x < end; x++){
+			
+			double xOnGraph = x/xScl;
+			
+			if(xOnGraph > integral.getStartX() && xOnGraph < integral.getEndX()){
+				
+				double yPointGraph =  f.getY(xOnGraph);
+				
+				xPolyPoints.add(x + (int) originX);
+				yPolyPoints.add((int) (-(yPointGraph*yScl) + originY));
+			}
+		}
+		
+		xPolyPoints.add(xPolyPoints.get(xPolyPoints.size() -1));
+		yPolyPoints.add((int)originY);
+		
+		int[] xPolyPointsArr = new int[xPolyPoints.size()];
+		int[] yPolyPointsArr = new int[yPolyPoints.size()];
+		
+		for(int i = 0; i < xPolyPoints.size(); i++){
+			xPolyPointsArr[i] = xPolyPoints.get(i);
+			yPolyPointsArr[i] = yPolyPoints.get(i);
+		}
+		
+		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
+		
+		int round = 1000;
+		
+		DoublePoint center = integral.getCenterOfGravity();
+		GraphicsWrapper gw = new GraphicsWrapper(g);
+		g.setColor(Color.BLACK);
+		gw.drawCenteredString((double)(Math.round(integral.getArea()*round))/round + "", center.getX()*xScl + originX, -center.getY()*yScl + originY);
+		
+	}
+	
 	//Draws the functions
-	public void drawFunctions(Graphics g){	
+	public void drawFunctions(Graphics g){
+		
+		
 		
 		//X positions (px) that the graph should start and stop (edge of the screen)
 		int begin = -(int)(originX);
@@ -231,24 +312,20 @@ public class GraphingComp extends JComponent{
 		
 		//Loops through every function in function controller
 		for(int c = 0; c < functionController.getFunctionCount(); c++){
+			
 			g.setColor(functionController.getColor(c)); //Sets color to the graph's corresponding color
 			
-			//Previous x and y points.
-			//The functions are graphed when by finding a point, and then drawing a line...
-			//from that point to the previous point. So it is necessary to save the previous point. 
-			//I defaulted them to -1000, so they would be off the screen
-			int px = -1000;
-			int py = -1000;
+			int[] xPoints = new int[end-begin];
+			int[] yPoints = new int[end-begin];
 			
-			//Loops from begin to end, and draws the corresponding points.  
-			for(int x = begin; x < end; x++){
-				int y = (int) ((functionController.getY(x/xScl,c))*yScl);	
+			//x = x-point in pixels
+			for(int x = begin; x < end; x++){		
 				
-				g.drawLine(px, py, x+(int)(originX),-y+(int)(originY));
-				
-				px = x+(int)(originX);
-				py =  -y+(int)(originY);
+				xPoints[x - begin] = x + (int) originX;				
+				yPoints[x - begin] = (int) (-(functionController.getY(x/xScl,c))*yScl) +(int)originY;
 			}
+			
+			g.drawPolyline(xPoints, yPoints, xPoints.length);
 			
 			//Value of Y where the current X marker is.
 			double yy = functionController.getY((currentX),c); //sets yy.
@@ -499,6 +576,7 @@ public class GraphingComp extends JComponent{
 		
 		JMenuItem color;
 		JMenuItem remove;
+		JMenuItem integrate;
 		
 		
 		public FunctionPopup(){			
@@ -506,12 +584,15 @@ public class GraphingComp extends JComponent{
 			
 			color = new JMenuItem("Change color");
 			remove = new JMenuItem("Remove function");
+			integrate = new JMenuItem("Integrate");
 			
 			color.addActionListener(pl);
 			remove.addActionListener(pl);			
+			integrate.addActionListener(pl);
 			
 			add(color);
-			add(remove);		
+			add(remove);
+			add(integrate);
 		}
 		
 		public void setFunction(Function f){
@@ -533,13 +614,29 @@ public class GraphingComp extends JComponent{
 				}else if(e.getSource() == remove){
 					
 					functionController.removeFunction(f);
+					
+					ArrayList<Integral> removeList = new ArrayList<Integral>();
+					for(Integral i : integralList){
+						if(i.getF().equals(f)){
+							removeList.add(i);
+						}
+					}
+					
+					for(Integral i : removeList){
+						integralList.remove(i);
+					}				
+					
+					GraphingComp.this.repaint();				
+					
+				}else if(e.getSource() == integrate){
+					
+					integralList.add(Integral.showNewIntegralPopupDialog(frame,f));
 					GraphingComp.this.repaint();
 					
 				}
 			}
 		}
-	}
-	
+	}	
 	
 	FunctionPopup functionPopup;
 	

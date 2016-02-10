@@ -1,7 +1,7 @@
 package com.justin.term;
 
-// log(1/x,x) doesnt work
-// log(sin(x)^2,2) doesnt work
+
+//Negative variables don't work (-x)
 
 public class TermReader {
 	
@@ -37,8 +37,6 @@ public class TermReader {
 				nextOperation = Operation.DIVISION;
 			}else if(c == '+'){
 				nextOperation = Operation.ADDITION;
-			}else if(c == '-'){
-				nextOperation = Operation.SUBTRACTION;
 			}else if(c == '^'){
 				nextOperation = Operation.EXPONENT;
 			}else{
@@ -55,8 +53,7 @@ public class TermReader {
 						i = closingParen;
 						
 						out = operate(out, getFunctionTerm(letters, readFunctionArguments(functionArgumentsString)), nextOperation);;
-					}else{
-						
+					}else{						
 						//Constants
 						
 						Term constant;
@@ -70,10 +67,22 @@ public class TermReader {
 				}else{
 					//Its a number
 					
-					String numbers = getFirstNumericString(i,s);
-					i += numbers.length() - 1;					
 					
-					double d = Double.parseDouble(numbers);
+					String numbers;
+					if(c == '-'){
+						
+						if(nextOperation == null && out != null){
+							nextOperation = Operation.SUBTRACTION;
+							continue;
+						}
+						
+						numbers = "-" + getFirstNumericString(i+1,s);
+					}else{
+						numbers = getFirstNumericString(i,s);
+					}
+					i += numbers.length() - 1;
+					
+					double d = Double.parseDouble(numbers);		
 					out = operate(out, new NumberTerm(d), nextOperation);
 				}				
 				
@@ -143,7 +152,7 @@ public class TermReader {
 		return null;
 	}
 	
-	private static Term getFunctionTerm(String function, Term[] argumentList){	
+	private static Term getFunctionTerm(String function, Term[] argumentList){
 		
 		switch(function){
 		case "sin": return new TrigTerm(TrigTerm.SIN, argumentList[0]);

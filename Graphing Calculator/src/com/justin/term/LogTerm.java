@@ -28,7 +28,7 @@ public class LogTerm extends Term{
 
 	@Override
 	public String getDisplayName() {
-		return "log(" + main.getDisplayName() + ", " + base.getDisplayName() + ")";
+		return "log(" + main + ", " + base + ")";
 	}
 
 	@Override

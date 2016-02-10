@@ -52,6 +52,130 @@ public abstract class Term {
 	
 	public final double resolve(){
 		
+//		System.out.println("resolve " + getValue());
+		
+		//PEMDAS
+		//Parenthesis
+		//Exponents
+		//Multiplication / Division
+		//Addition / Subtraction
+		
+		
+		double out = getValue();
+		
+		
+		//Shallow Copy stepList
+		ArrayList<Step> newStepList = new ArrayList<Step>();
+		newStepList.addAll(stepList);
+		
+		//Resolve all operations to Term
+		ArrayList<Double> resolveList = new ArrayList<Double>();
+		
+		for(Step s : stepList){
+			resolveList.add(s.getTerm().resolve());
+		}
+		
+//		System.out.println(newStepList);
+//		System.out.println(resolveList);
+		
+		//Perform exponents
+		for(int i = 0; i < resolveList.size(); i++){
+			Step s = newStepList.get(i);
+			if(s.getOperation() == Operation.EXPONENT){
+				
+				double newVal;
+				
+				if(i == 0){
+					newVal = out;
+					newVal = Math.pow(newVal, resolveList.get(i));
+					out = newVal;				
+					
+				}else{
+					newVal = resolveList.get(i - 1);
+					newVal = Math.pow(newVal, resolveList.get(i));
+					resolveList.set(i-1, newVal);
+				}				
+				
+				newStepList.remove(i);
+				resolveList.remove(i);
+				i--;
+			}
+		}
+		
+//		System.out.println(newStepList);
+//		System.out.println(resolveList);
+		
+		//Perform multiplication and division
+		for(int i = 0; i < resolveList.size(); i++){
+			Step s = newStepList.get(i);
+			if(s.getOperation() == Operation.MULTIPLY || s.getOperation() == Operation.DIVISION){
+				
+				double newVal;
+				
+				if(i == 0){
+					newVal = out;
+					switch(s.getOperation()){
+					case MULTIPLY: newVal *= resolveList.get(i); break;
+					case DIVISION: newVal /= resolveList.get(i); break;
+					}
+					out = newVal;				
+					
+				}else{
+					newVal = resolveList.get(i - 1);
+					switch(s.getOperation()){
+					case MULTIPLY: newVal *= resolveList.get(i); break;
+					case DIVISION: newVal /= resolveList.get(i); break;
+					}
+					resolveList.set(i-1, newVal);
+				}				
+				
+				newStepList.remove(i);
+				resolveList.remove(i);
+				i--;
+			}
+		}
+		
+//		System.out.println(newStepList);
+//		System.out.println(resolveList);
+		
+		//Perform addition and subtraction
+		for(int i = 0; i < resolveList.size(); i++){
+			Step s = newStepList.get(i);
+			if(s.getOperation() == Operation.ADDITION || s.getOperation() == Operation.SUBTRACTION){
+				
+				double newVal;
+				
+				if(i == 0){
+					newVal = out;
+//					System.out.println("Out equals " + out);
+					switch(s.getOperation()){
+					case ADDITION: newVal += resolveList.get(i); break;
+					case SUBTRACTION: newVal -= resolveList.get(i); break;
+					}
+					out = newVal;				
+					
+				}else{
+					newVal = resolveList.get(i - 1);
+					switch(s.getOperation()){
+					case ADDITION: newVal += resolveList.get(i); break;
+					case SUBTRACTION: newVal -= resolveList.get(i); break;
+					}
+					resolveList.set(i-1, newVal);
+				}				
+				
+				newStepList.remove(i);
+				resolveList.remove(i);
+				i--;
+			}
+		}
+		
+//		System.out.println(newStepList);
+//		System.out.println(resolveList);
+//		System.out.println(out);
+		
+		return out;
+		
+		/*
 		double out = getValue();
 		
 		for(Step s : stepList){
@@ -65,6 +189,7 @@ public abstract class Term {
 		}
 		
 		return out;
+		*/
 	}
 	
 	public void addStep(Term t, Operation o){		

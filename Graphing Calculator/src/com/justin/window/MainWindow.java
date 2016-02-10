@@ -34,7 +34,7 @@ public class MainWindow extends JFrame{
 	
 	public void run(){		
 		fc = new FunctionController();
-		gc = new GraphingComp(fc);
+		gc = new GraphingComp(this, fc);
 		add(gc);
 		
 		setJMenuBar(new Bar());
