@@ -1,4 +1,4 @@
-package com.hoosteen.term;
+package com.hoosteen.math;
 
 public enum Operation {
 	

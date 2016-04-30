@@ -1,4 +1,4 @@
-package com.hoosteen.term;
+package com.hoosteen.math.term;
 
 public class ConstantTerm extends NumberTerm{
 

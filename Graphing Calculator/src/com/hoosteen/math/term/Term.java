@@ -1,5 +1,7 @@
-package com.hoosteen.term;
+package com.hoosteen.math.term;
 import java.util.ArrayList;
+
+import com.hoosteen.math.Operation;
 
 public abstract class Term {
 	

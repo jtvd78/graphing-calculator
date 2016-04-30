@@ -1,5 +1,6 @@
-package com.hoosteen.term;
+package com.hoosteen.math.term;
 
+import com.hoosteen.math.Operation;
 
 //Negative variables don't work (-x)
 
@@ -112,21 +113,28 @@ public class TermReader {
 		int closedCount = 0;
 		boolean openFound = false;
 		
+		//loop through the string
 		for(int ctr = start; ctr < s.length(); ctr++){
 			char scanChar = s.charAt(ctr);
 			
+			//if open paren found, increment open found
 			if(scanChar == '('){
 				openFound = true;
 				openCount++;
+				
+			//if closed paren found, increment closed found
 			}else if(scanChar == ')'){
 				closedCount++;
 			}
 			
+			//If you've found a paren, and there is an equal number
+			//of opening and closing, you've found the correct closing paren. 
 			if(openFound && openCount == closedCount){
 				return ctr;
 			}
 		}
 		
+		//If there is no closing paren, then return the end of the string
 		return s.length() - 1;
 	}
 	

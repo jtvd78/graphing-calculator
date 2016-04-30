@@ -2,8 +2,8 @@ package com.hoosteen.function;
 
 import java.awt.Color;
 
-import com.hoosteen.term.Term;
-import com.hoosteen.term.TermReader;
+import com.hoosteen.math.term.Term;
+import com.hoosteen.math.term.TermReader;
 
 public class Function {
 	

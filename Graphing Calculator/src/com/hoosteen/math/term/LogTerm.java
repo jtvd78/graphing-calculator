@@ -1,4 +1,4 @@
-package com.hoosteen.term;
+package com.hoosteen.math.term;
 
 import java.util.ArrayList;
 

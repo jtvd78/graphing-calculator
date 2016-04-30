@@ -1,4 +1,7 @@
-package com.hoosteen.term;
+package com.hoosteen.math;
+
+import com.hoosteen.math.term.Term;
+
 public class Step {
 	
 	Operation o;

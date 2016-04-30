@@ -9,10 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.hoosteen.graphics.DoublePoint;
-import com.hoosteen.term.FunctionTerm;
-import com.hoosteen.term.NumberTerm;
-import com.hoosteen.term.Term;
-import com.hoosteen.term.VariableTerm;
+import com.hoosteen.math.term.FunctionTerm;
+import com.hoosteen.math.term.NumberTerm;
+import com.hoosteen.math.term.Term;
+import com.hoosteen.math.term.VariableTerm;
 
 public class Integral {
 	
