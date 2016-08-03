@@ -1,8 +1,10 @@
 package com.hoosteen.window;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -225,21 +227,32 @@ public class GraphingComp extends JComponent{
 			
 		g.setColor(Color.white);
 		
+		int halfTick = tickMarkSize/2;
+		
 		//Draws tick marks and numbers for X axis
 		for(int c = xc; c < Math.ceil(w/xScl)+1; c+=xAmt){
-			g.drawLine((int)(xScl*c + (int)(originX) % xScl), (int)(originY)+(tickMarkSize/2), (int)(xScl*c + (int)(originX) % xScl), (int)(originY)-(tickMarkSize/2));
-			g.drawString(c-((int)((int)(originX)/xScl)) + "", (int)(xScl*c + (int)(originX) % xScl - fontSize/4), (int)(originY)+(tickMarkSize/2)+fontSize);
+			int x = (int)(xScl*c + (int)(originX) % xScl);
+			g.drawLine(x, (int)(originY)+halfTick, x, (int)(originY)-halfTick);
+			g.drawString(c-((int)(originX/xScl)) + "", x - fontSize/4, (int)(originY)+halfTick+fontSize);
 		}
 			
 		//Draws tick marks and numbers for Y axis
 		for(int c = yc; c < Math.ceil(h/yScl)+1; c+=yAmt){
-			g.drawLine((int)(originX)+(tickMarkSize/2),(int)(yScl*c + originY % yScl), (int)(originX)-(tickMarkSize/2), (int)(yScl*c + originY % yScl));
-			g.drawString(-c+((int)(originY/yScl)) + "",(int)(originX)+(tickMarkSize/2)+fontSize/4,(int)(yScl*c + originY % yScl)+fontSize/2);
+			int y = (int)(yScl*c + originY % yScl);
+			g.drawLine((int)(originX)+halfTick, y, (int)(originX)-halfTick, y);
+			g.drawString(-c+((int)(originY/yScl)) + "",(int)(originX)+halfTick+fontSize/4,y+fontSize/2);
 		}
 		
+		//3 Point line
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setStroke(new BasicStroke(3));
+		
 		//Draws X and Y axis lines
-		g.drawLine((int)(originX),0,(int)(originX),h); g.drawLine((int)(originX)-1,0,(int)(originX)-1,h); g.drawLine((int)(originX)+1,0,(int)(originX)+1,h);
-		g.drawLine(0, (int)(originY), w, (int)(originY)); g.drawLine(0, (int)(originY)-1, w, (int)(originY)-1); g.drawLine(0, (int)(originY)+1, w, (int)(originY)+1);
+		g.drawLine((int)(originX), 0, (int)(originX), h);		
+		g.drawLine(0, (int)(originY), w, (int)(originY)); 
+		
+		//1 Point line
+		g2.setStroke(new BasicStroke(1));
 	}
 	
 	/**
@@ -293,19 +306,24 @@ public class GraphingComp extends JComponent{
 		
 		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
 		
-		int round = 1000;
-		
 		DoublePoint center = integral.getCenterOfGravity();
 		GraphicsWrapper gw = new GraphicsWrapper(g);
 		g.setColor(Color.BLACK);
-		gw.drawCenteredString((double)(Math.round(integral.getArea()*round))/round + "", center.getX()*xScl + originX, -center.getY()*yScl + originY);
+		gw.drawCenteredString(round(integral.getArea(), 3), center.getX()*xScl + originX, -center.getY()*yScl + originY);
 		
+	}
+	
+	public String round(double value, int decimals){
+		int round = (int) Math.pow(10, decimals);
+		
+		return (double)(Math.round(value*round))/round + "";
 	}
 	
 	//Draws the functions
 	public void drawFunctions(Graphics g){
 		
-		
+		int halfCircle = circleSize/2;		
+		int xLocation = (int)(currentX*xScl);		
 		
 		//X positions (px) that the graph should start and stop (edge of the screen)
 		int begin = -(int)(originX);
@@ -329,28 +347,32 @@ public class GraphingComp extends JComponent{
 			g.drawPolyline(xPoints, yPoints, xPoints.length);
 			
 			//Value of Y where the current X marker is.
-			double yy = functionController.getY((currentX),c); //sets yy.
+			double yy = functionController.getY((currentX),c); //sets yy.			
 			
 			//Draws a circle on the function where the current X is. 
-			g.fillOval((int)(currentX*xScl)+(int)(originX)-(circleSize/2),((int)((-yy*yScl))+(int)(originY))-(circleSize/2),(circleSize),(circleSize));
-			g.drawString((double)(Math.round(yy*100))/100 + "",(int)(currentX*xScl)+(int)(originX) +20,((int)((-yy*yScl))+(int)(originY)));
+			g.fillOval(xLocation+(int)(originX)-halfCircle,((int)((-yy*yScl))+(int)(originY))-halfCircle,circleSize,circleSize);
+			g.drawString((double)(Math.round(yy*100))/100 + "",xLocation+(int)(originX) +20,((int)((-yy*yScl))+(int)(originY)));
 			
 			g.setColor(Color.black);
-			g.drawOval((int)(currentX*xScl)+(int)(originX)-(circleSize/2),((int)((-yy*yScl))+(int)(originY))-(circleSize/2),(circleSize),(circleSize));
+			g.drawOval(xLocation+(int)(originX)-halfCircle,((int)((-yy*yScl))+(int)(originY))-halfCircle,circleSize,circleSize);
 		}
 	}
 	
 	//Draws Oval for the current X marker
 	public void drawXOval(Graphics g){		
+		
+		int xLocation = (int)(currentX*xScl);
+		int halfCircle = circleSize/2;
+		
 		//oval
 		g.setColor(Color.white);
-		g.fillOval((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY)-(circleSize/2),(circleSize),(circleSize));
+		g.fillOval(xLocation+(int)(originX)-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
 		
 		//oval border
 		g.setColor(Color.black);
-		g.drawOval((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY)-(circleSize/2),(circleSize),(circleSize));
-		g.drawLine((int)(currentX*xScl)+(int)(originX),(int)(originY)-(circleSize/2),(int)(currentX*xScl)+(int)(originX),(int)(originY)+(circleSize/2));
-		g.drawLine((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY),(int)(currentX*xScl)+(int)(originX)+(circleSize/2),(int)(originY));
+		g.drawOval(xLocation+(int)(originX)-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
+		g.drawLine(xLocation+(int)(originX),(int)(originY)-halfCircle,xLocation+(int)(originX),(int)(originY)+halfCircle);
+		g.drawLine(xLocation+(int)(originX)-halfCircle,(int)(originY),xLocation+(int)(originX)+halfCircle,(int)(originY));
 	}
 	
 	//Draws functions in the corner
@@ -452,7 +474,7 @@ public class GraphingComp extends JComponent{
 			//If the left mouse button is pressed, it checks to see if the mouse is in the current X circle.
 			//If it is, 'allowCurrentXMovement' is made true. Actual movement is dealt with in 'mouseMoved(MouseEvent e)'
 			if(pressed[1]){
-				Rectangle r = new Rectangle((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY)-(circleSize/2),(circleSize),(circleSize));
+				Rectangle r = new Rectangle((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY)-(circleSize/2),circleSize,circleSize);
 				if(r.contains(new Point(mouseX,mouseY))){
 					allowCurrentXMovement = true;
 				}
@@ -606,8 +628,8 @@ public class GraphingComp extends JComponent{
 			public void actionPerformed(ActionEvent e) {
 				if(e.getSource() == color){
 					
-					Color newCol;
-					if((newCol = JColorChooser.showDialog(GraphingComp.this,"Chose Function Color",f.getColor())) != null){
+					Color newCol =JColorChooser.showDialog(GraphingComp.this,"Chose Function Color",f.getColor());
+					if(newCol != null){
 						f.setColor(newCol);
 						GraphingComp.this.repaint();
 					}					

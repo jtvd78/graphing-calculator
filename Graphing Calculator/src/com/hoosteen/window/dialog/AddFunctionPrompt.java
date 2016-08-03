@@ -15,17 +15,18 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import com.hoosteen.function.Function;
 import com.hoosteen.window.MainWindow;
 
 public class AddFunctionPrompt extends JDialog{
 	
-	JButton b;
+	JButton submitButton;
 	JButton colorButton;
 	JButton cancel;
-	JLabel d;
-	JTextField t;
+	JLabel redText;
+	JTextField textField;
 	MainWindow mw;
 	
 	Color funcColor = Color.red;
@@ -33,34 +34,43 @@ public class AddFunctionPrompt extends JDialog{
 	public AddFunctionPrompt(MainWindow mw){
 		super(mw,true);
 		this.mw = mw;
-		
-		setLocation(mw.getX()+mw.getWidth()/2-400/2,mw.getY()+mw.getHeight()/2-300/2);
+				
 		setTitle("Add new function");
-		setSize(400,300);
 		setLayout(new FlowLayout());
 		
-		JPanel p = new JPanel(new GridLayout(0,1));
-		add(p);
-	
-		b = new JButton("Submit");
-		colorButton = new JButton("Chose Color");
-		d = new JLabel("");
-		t = new JTextField();
+		JPanel innerPanel = new JPanel(new GridLayout(0,1));
 		
-		t.addKeyListener(new EnterListener());
+		
+		textField = new JTextField();
+		submitButton = new JButton("Submit");
+		colorButton = new JButton("Chose Color");
+		redText = new JLabel("", SwingConstants.CENTER);
+		redText.setForeground(Color.RED);
+	
+		
+		textField.addKeyListener(new EnterListener());
 		
 		ButtonListener bl = new ButtonListener();
 		
-		b.addActionListener(bl);
+		submitButton.addActionListener(bl);
 		colorButton.addActionListener(bl);
-		t.setPreferredSize(new Dimension(getWidth()-20,25));
+		textField.setPreferredSize(new Dimension(300,25));
 		
-		p.add(d);
-		p.add(t);
-		p.add(colorButton);
-		p.add(b);
+		innerPanel.add(redText);
+		innerPanel.add(textField);
+		innerPanel.add(colorButton);
+		innerPanel.add(submitButton);
+		
+		add(innerPanel);
+		
+		pack();
+		
+		//Center it
+		this.setLocationRelativeTo(mw);
 		
 		setVisible(true);
+		
+		
 	}
 	
 	private void closeWindow(){
@@ -76,10 +86,7 @@ public class AddFunctionPrompt extends JDialog{
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if(e.getKeyCode() == KeyEvent.VK_ENTER){
-				mw.getFunctionController().addFunction(new Function(t.getText(),funcColor));
-				mw.repaint();
-					
-				closeWindow();
+				submit();
 			}
 		}
 
@@ -97,13 +104,25 @@ public class AddFunctionPrompt extends JDialog{
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == colorButton){
 				funcColor = JColorChooser.showDialog(getFrame(),"Chose Function Color",Color.red);
-			}else if(e.getSource() == b){
-
-				mw.getFunctionController().addFunction(new Function(t.getText(),funcColor));
-				mw.repaint();
-					
-				closeWindow();
+			}else if(e.getSource() == submitButton){
+				submit();
 			}
 		}		
 	}
+	
+	private void submit(){
+		
+		try{
+			mw.getFunctionController().addFunction(new Function(textField.getText(),funcColor));
+		}catch(Exception e){
+			redText.setText("Incorrect Function Format");
+			return;
+		}
+		
+		
+		mw.repaint();
+			
+		closeWindow();
+	}
+	
 }

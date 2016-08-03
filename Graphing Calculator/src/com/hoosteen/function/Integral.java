@@ -22,6 +22,9 @@ public class Integral {
 	double startX;
 	double endX;
 	
+	double area;
+	boolean areaFound = false;
+	
 	public Integral(Function f, double startX, double endX){
 		this.f = f;
 		this.startX = startX;
@@ -41,17 +44,23 @@ public class Integral {
 	}
 	
 	public double getArea(){
-		return integrate(f, startX, endX);
+		
+		if(!areaFound){
+			areaFound = true;
+			return (area = integrate(f, startX, endX, (int) Math.pow(INTEGRAL_PRECISION, 2)));			
+		}		
+		
+		return area;
 	}
 	
 	public double getMomentY(){
 		Term t = new FunctionTerm(f, new VariableTerm("x"));
-		return integrate(new Function(new VariableTerm("x").times(t)),startX, endX);
+		return integrate(new Function(new VariableTerm("x").times(t)),startX, endX, INTEGRAL_PRECISION);
 	}
 	
 	public double getMomentX(){
 		Term t = new FunctionTerm(f, new VariableTerm("x"));
-		return integrate(new Function(new NumberTerm(0.5).times(t.toThe(2))),startX, endX);
+		return integrate(new Function(new NumberTerm(0.5).times(t.toThe(2))),startX, endX, INTEGRAL_PRECISION);
 	}
 	
 	public DoublePoint getCenterOfGravity(){
@@ -83,11 +92,11 @@ public class Integral {
 		return null;
 	}
 	
-	public static double integrate(Function f, double start, double end){
+	public static double integrate(Function f, double start, double end, int precision){
 		double out = 0 ;
 		
 		double range = end - start;
-		double changeX = range/INTEGRAL_PRECISION;
+		double changeX = range/precision;
 		
 		//x = x-point in pixels
 		for(double x = start; x < end; x+=changeX){
