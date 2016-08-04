@@ -24,7 +24,7 @@ public class FunctionController implements Iterable<Function>{
 		return functionList.get(funct).getColor();
 	}
 	
-	public int getFunctionCount(){ 
+	public int size(){ 
 		return functionList.toArray().length;
 	}
 

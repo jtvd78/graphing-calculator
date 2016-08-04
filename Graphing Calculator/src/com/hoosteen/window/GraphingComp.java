@@ -111,14 +111,23 @@ public class GraphingComp extends JComponent{
 		int oldHeight = -1;	
 		
 	//Stores the last known values for the width and height of each function in the function box
-		int lastFunctionBoxWidth;
-		int lastFunctionBoxHeight;
+		int functionBoxWidth;
+		int functionBoxHeight;
 		
 	//ArrayList of integrals to be drawn
 		ArrayList<Integral> integralList = new ArrayList<Integral>();
+		
+	//The JPopupMenu which appears when a user right clicks on a function within the function box
+		FunctionPopup functionPopup;
 	
 	//Parent frame
 		JFrame frame;
+		
+	//Color of Axis and Number Labels
+		Color axisColor = Color.WHITE;
+		
+	//Color of Background grid
+		Color gridColor = new Color(40,40,40);
 		
 		
 	//Constructor
@@ -139,7 +148,7 @@ public class GraphingComp extends JComponent{
 	}
 
 	//This method is called whenever the program needs to paint the window
-	public void paintComponent(Graphics g){
+	public void paintComponent(Graphics gOld){
 		updateVariables();
 		
 		//Stops the drawing if the window hasn't been properly initialized yet.
@@ -151,7 +160,9 @@ public class GraphingComp extends JComponent{
 			firstTime = false;
 		}
 		
-		g.setFont(new Font(null,Font.PLAIN,fontSize)); //Sets the font to the font size in the settings
+		gOld.setFont(new Font(null,Font.PLAIN,fontSize)); //Sets the font to the font size in the settings		
+		
+		GraphicsWrapper g = new GraphicsWrapper(gOld);
 		
 		//----START GRAPH DRAWING----//
 		drawBackground(g);
@@ -160,9 +171,7 @@ public class GraphingComp extends JComponent{
 		
 		for(Integral i : integralList){
 			drawIntegral(i, g);
-		}
-		
-		
+		}	
 		
 		//Draw currentX line
 		g.setColor(Color.white);
@@ -188,8 +197,8 @@ public class GraphingComp extends JComponent{
 		w = getWidth();
 		h = getHeight();
 		
-		xAmt = (int)((double)(prefScale)/xScl);
-		yAmt = (int)((double)(prefScale)/yScl);
+		xAmt = (int)((double)prefScale/xScl);
+		yAmt = (int)((double)prefScale/yScl);
 		
 		if(xAmt == 0){
 			xAmt = 1;
@@ -200,51 +209,65 @@ public class GraphingComp extends JComponent{
 	}
 	
 	//Draws the background
-	public void drawBackground(Graphics g){
+	public void drawBackground(GraphicsWrapper g){
 		g.setColor(Color.black);
 		g.fillRect(0, 0, w,h);
 	}
 	
 	//Draws the axis
-	public void drawAxis(Graphics g){
+	public void drawAxis(GraphicsWrapper g){
 		
-		g.setColor(new Color(40,40,40)); //Gray
+		g.setColor(gridColor); 
 		
 		//Edits where the loops should start at in order to have the tick marks in the right spot
-		int xc = (int)(originX/xScl) %xAmt - xAmt;
-		int yc = (int)(originY/yScl) %yAmt - yAmt;
+		int xStart = (int)(originX/xScl) % xAmt - xAmt;
+		int yStart = (int)(originY/yScl) % yAmt - yAmt;
+		
+		//String to display next to each tick
+		String tickString;
+		
+		//Size of half a tick mark
+		int halfTick = tickMarkSize/2;	
 
 		//Draws background grid
 		if(drawGrid){
-			for(int c = xc; c < Math.ceil(w/xScl)+1; c+=xAmt){
-				g.drawLine((int)(xScl*c + originX % xScl), 0, (int)(xScl*c  + originX % xScl), h); //x
+			for(int xCtr = xStart; xCtr < Math.ceil(w/xScl)+1; xCtr+=xAmt){
+				
+				int x = (int)(xScl*xCtr + originX % xScl);
+				
+				//Draw grid
+				g.setColor(gridColor);
+				g.drawLine(x, 0, x, h);
+				
+				//Draw tick
+				g.setColor(axisColor);		
+				g.drawLine(x, (int)(originY)+halfTick, x, (int)(originY)-halfTick);
+				
+				//Draw text
+				tickString = xCtr-(int)(originX/xScl) + "";			
+				g.drawString(tickString, x, (int) originY + halfTick, GraphicsWrapper.Position.BOTTOM);
 			}
 			
-			for(int c = yc; c < Math.ceil(h/yScl)+1; c+=yAmt){
-				g.drawLine(0,(int)(yScl*c + originY % yScl), w , (int)(yScl*c  + originY % yScl)); //y
+			for(int yCtr = yStart; yCtr < Math.ceil(h/yScl)+1; yCtr+=yAmt){
+				
+				int y = (int)(yScl*yCtr + originY % yScl);
+				
+				//Draw grid
+				g.setColor(gridColor);
+				g.drawLine(0,y, w , y);				
+				
+				//Draw tick
+				g.setColor(axisColor);	
+				g.drawLine((int)(originX)+halfTick, y, (int)(originX)-halfTick, y);	
+				
+				//Draw text
+				tickString = (int)(originY/yScl)-yCtr + "";			
+				g.drawString(tickString, (int)(originX)+halfTick + 5, y, GraphicsWrapper.Position.RIGHT);
 			}
-		}
-			
-		g.setColor(Color.white);
+		}		
 		
-		int halfTick = tickMarkSize/2;
-		
-		//Draws tick marks and numbers for X axis
-		for(int c = xc; c < Math.ceil(w/xScl)+1; c+=xAmt){
-			int x = (int)(xScl*c + (int)(originX) % xScl);
-			g.drawLine(x, (int)(originY)+halfTick, x, (int)(originY)-halfTick);
-			g.drawString(c-((int)(originX/xScl)) + "", x - fontSize/4, (int)(originY)+halfTick+fontSize);
-		}
-			
-		//Draws tick marks and numbers for Y axis
-		for(int c = yc; c < Math.ceil(h/yScl)+1; c+=yAmt){
-			int y = (int)(yScl*c + originY % yScl);
-			g.drawLine((int)(originX)+halfTick, y, (int)(originX)-halfTick, y);
-			g.drawString(-c+((int)(originY/yScl)) + "",(int)(originX)+halfTick+fontSize/4,y+fontSize/2);
-		}
-		
-		//3 Point line
-		Graphics2D g2 = (Graphics2D)g;
+		//3 Point (thickness) line
+		Graphics2D g2 = (Graphics2D)g.getGraphics();
 		g2.setStroke(new BasicStroke(3));
 		
 		//Draws X and Y axis lines
@@ -255,30 +278,40 @@ public class GraphingComp extends JComponent{
 		g2.setStroke(new BasicStroke(1));
 	}
 	
+	private int xPointToPx(double xPoint){
+		return (int)(xPoint*xScl + originX);
+	}
+	
+	private int yPointToPx(double yPoint){
+		return (int)(-1*yPoint*yScl + originY);
+	}
+	
 	/**
-	 * Draws an integral onto the graphics object, and returns the value of the integral
+	 * Draws an integral onto the graphics object
 	 * @param f - Function to integrate
 	 * @param g - Graphics object to draw on to
 	 * @param startX - Starting x of the integral
 	 * @param endX - Ending x of the integral
 	 * @return the value of the integral
 	 */
-	public void drawIntegral(Integral integral, Graphics g){
-
-		//X positions (px) that the graph should start and stop (edge of the screen)
-		int begin = -(int)(originX);
-		int end = w+begin;
+	public void drawIntegral(Integral integral, GraphicsWrapper g){	
 		
-		Function f = integral.getF();
+		Function function = integral.getF();
 		
-		g.setColor(f.getColor()); //Sets color to the graph's corresponding color
+		g.setColor(function.getColor()); //Sets color to the graph's corresponding color
 		
 		ArrayList<Integer> xPolyPoints = new ArrayList<Integer>();
 		ArrayList<Integer> yPolyPoints = new ArrayList<Integer>();
 		
-		xPolyPoints.add((int) (integral.getStartX()*xScl + (int) originX));
+		//Add initial point
+		xPolyPoints.add(xPointToPx(integral.getStartX()));
 		yPolyPoints.add((int)originY);	
 		
+		//X positions (px) that the graph should start and stop (edge of the screen)
+		int begin = -(int)(originX);
+		int end = w + begin;
+		
+		//Add middle points
 		//x = x-point in pixels
 		for(int x = begin; x < end; x++){
 			
@@ -286,33 +319,42 @@ public class GraphingComp extends JComponent{
 			
 			if(xOnGraph > integral.getStartX() && xOnGraph < integral.getEndX()){
 				
-				double yPointGraph =  f.getY(xOnGraph);
+				double yPointGraph =  function.getY(xOnGraph);
 				
 				xPolyPoints.add(x + (int) originX);
-				yPolyPoints.add((int) (-(yPointGraph*yScl) + originY));
+				yPolyPoints.add(yPointToPx(yPointGraph));
 			}
 		}
 		
-		xPolyPoints.add(xPolyPoints.get(xPolyPoints.size() -1));
+		//Add ending point
+		xPolyPoints.add(xPointToPx(integral.getEndX()));
 		yPolyPoints.add((int)originY);
 		
+		//Convert ArrayList of Integers to array of ints
 		int[] xPolyPointsArr = new int[xPolyPoints.size()];
 		int[] yPolyPointsArr = new int[yPolyPoints.size()];
 		
 		for(int i = 0; i < xPolyPoints.size(); i++){
 			xPolyPointsArr[i] = xPolyPoints.get(i);
 			yPolyPointsArr[i] = yPolyPoints.get(i);
-		}
+		}		
 		
-		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
+		//Fill the shape
+		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());		
 		
-		DoublePoint center = integral.getCenterOfGravity();
-		GraphicsWrapper gw = new GraphicsWrapper(g);
+		//Find the center and draw area
 		g.setColor(Color.BLACK);
-		gw.drawCenteredString(round(integral.getArea(), 3), center.getX()*xScl + originX, -center.getY()*yScl + originY);
+		DoublePoint center = integral.getCenterOfGravity();
+		g.drawCenteredString(round(integral.getArea(), 3), xPointToPx(center.getX()), yPointToPx(center.getY()));
 		
 	}
 	
+	/**
+	 * Rounds a double value to a number of characters, and returns the value as a string
+	 * @param value Value to round
+	 * @param decimals Number of characters
+	 * @return a String representation of the rounded decimal
+	 */
 	public String round(double value, int decimals){
 		int round = (int) Math.pow(10, decimals);
 		
@@ -320,19 +362,23 @@ public class GraphingComp extends JComponent{
 	}
 	
 	//Draws the functions
-	public void drawFunctions(Graphics g){
+	public void drawFunctions(GraphicsWrapper g){
 		
 		int halfCircle = circleSize/2;		
-		int xLocation = (int)(currentX*xScl);		
+		int xLocation = xPointToPx(currentX);		
 		
 		//X positions (px) that the graph should start and stop (edge of the screen)
 		int begin = -(int)(originX);
 		int end = w+begin;
 		
+		Color functionColor;
+		
 		//Loops through every function in function controller
-		for(int c = 0; c < functionController.getFunctionCount(); c++){
+		for(int functionCtr = 0; functionCtr < functionController.size(); functionCtr++){
 			
-			g.setColor(functionController.getColor(c)); //Sets color to the graph's corresponding color
+			functionColor = functionController.getColor(functionCtr);
+			
+			g.setColor(functionColor); //Sets color to the graph's corresponding color
 			
 			int[] xPoints = new int[end-begin];
 			int[] yPoints = new int[end-begin];
@@ -341,86 +387,90 @@ public class GraphingComp extends JComponent{
 			for(int x = begin; x < end; x++){		
 				
 				xPoints[x - begin] = x + (int) originX;				
-				yPoints[x - begin] = (int) (-(functionController.getY(x/xScl,c))*yScl) +(int)originY;
+				yPoints[x - begin] = yPointToPx(functionController.getY(x/xScl,functionCtr));
 			}
 			
 			g.drawPolyline(xPoints, yPoints, xPoints.length);
 			
 			//Value of Y where the current X marker is.
-			double yy = functionController.getY((currentX),c); //sets yy.			
+			double yy = functionController.getY(currentX,functionCtr);
+			int circlePxLocationY = yPointToPx(yy);
 			
 			//Draws a circle on the function where the current X is. 
-			g.fillOval(xLocation+(int)(originX)-halfCircle,((int)((-yy*yScl))+(int)(originY))-halfCircle,circleSize,circleSize);
-			g.drawString((double)(Math.round(yy*100))/100 + "",xLocation+(int)(originX) +20,((int)((-yy*yScl))+(int)(originY)));
+			g.fillOval(xLocation - halfCircle, circlePxLocationY - halfCircle, circleSize, circleSize);			
+			 
+			//Displays the Function Value on screen
+			String displayValue = round(yy,3);			
+			Rect r = g.getStringRect(displayValue, xLocation + fontSize, circlePxLocationY, GraphicsWrapper.Position.RIGHT);
 			
+			g.setColor(new Color(0,0,0,255/2));
+			g.fillRoundRect(r,15);
+			
+			g.setColor(functionColor); //Sets color to the graph's corresponding color
+			
+			g.drawCenteredString(displayValue, r,GraphicsWrapper.HorizAlign.CENTER, GraphicsWrapper.VertAlign.MIDDLE);	
+			
+			
+			//Draws the outline
 			g.setColor(Color.black);
-			g.drawOval(xLocation+(int)(originX)-halfCircle,((int)((-yy*yScl))+(int)(originY))-halfCircle,circleSize,circleSize);
+			g.drawOval(xLocation - halfCircle, circlePxLocationY - halfCircle, circleSize, circleSize);
 		}
 	}
 	
 	//Draws Oval for the current X marker
-	public void drawXOval(Graphics g){		
+	public void drawXOval(GraphicsWrapper g){		
 		
-		int xLocation = (int)(currentX*xScl);
 		int halfCircle = circleSize/2;
+		int xLocation = xPointToPx(currentX);		
 		
 		//oval
 		g.setColor(Color.white);
-		g.fillOval(xLocation+(int)(originX)-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
+		g.fillOval(xLocation-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
 		
 		//oval border
 		g.setColor(Color.black);
-		g.drawOval(xLocation+(int)(originX)-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
-		g.drawLine(xLocation+(int)(originX),(int)(originY)-halfCircle,xLocation+(int)(originX),(int)(originY)+halfCircle);
-		g.drawLine(xLocation+(int)(originX)-halfCircle,(int)(originY),xLocation+(int)(originX)+halfCircle,(int)(originY));
+		g.drawOval(xLocation-halfCircle,(int)(originY)-halfCircle,(circleSize),(circleSize));
+		g.drawLine(xLocation,(int)(originY)-halfCircle,xLocation,(int)(originY)+halfCircle);
+		g.drawLine(xLocation-halfCircle,(int)(originY),xLocation+halfCircle,(int)(originY));
 	}
 	
 	//Draws functions in the corner
-	public void drawFunctionBox(Graphics g){
+	public void drawFunctionBox(GraphicsWrapper g){
 		
-		if(functionController.getFunctionCount() == 0){
+		if(functionController.size() == 0){
 			return;
-		}	
-		
-		GraphicsWrapper gw = new GraphicsWrapper(g);
-		
-		//Fill background rectangle
+		}
 		
 		//Each box has the same height. Get the height of the first one
-		int boxHeight = gw.getStringRect(functionController.getFunction(0).toString()).getHeight();
+		int boxHeight = g.getStringRect(functionController.getFunction(0).toString()).getHeight();
 		
 		//Find longest string		
 		int maxBoxWidth = 0;
 		for(Function f : functionController){
-			int stringWidth = gw.getStringRect(f.toString()).getWidth();
+			int stringWidth = g.getStringRect(f.toString()).getWidth();
 			
 			if(stringWidth > maxBoxWidth){
 				maxBoxWidth = stringWidth;
 			}
 		}
 		
-		lastFunctionBoxWidth = maxBoxWidth;
-		lastFunctionBoxHeight = boxHeight;
+		//Set global function box dimensions
+		functionBoxWidth = maxBoxWidth;
+		functionBoxHeight = boxHeight;
 		
+		//Draw the box
 		g.setColor(new Color(0,0,0,255/2));
-		g.fillRoundRect(0, 0, maxBoxWidth + functionBoxWidthPadding*2, boxHeight*functionController.getFunctionCount(), 15,15);
+		g.fillRoundRect(0, 0, maxBoxWidth + functionBoxWidthPadding*2, boxHeight*functionController.size(), 15,15);
 		
+
 		//Draw Function Strings
-		int functionCounter = 0;
-		for(Function f : functionController){
+		for(int functionCtr = 0; functionCtr < functionController.size(); functionCtr++){
+			Function f = functionController.getFunction(functionCtr);
 			
-			g.setColor(f.getColor());
-			String functionString = f.toString();		
-			Rect r = gw.getStringRect(functionString);
+			//Draw the function's string within the box
+			g.setColor(f.getColor());			
+			g.drawString(f.toString(),functionBoxWidthPadding, functionCtr*boxHeight,GraphicsWrapper.Position.BOTTOM_RIGHT);
 			
-			boxHeight = r.getHeight();
-			if(r.getWidth() > maxBoxWidth){
-				maxBoxWidth = r.getWidth();
-			}			
-			
-			r = r.offset(functionBoxWidthPadding, functionCounter*r.getHeight());
-			gw.drawString(functionString, r);
-			functionCounter++;
 		}
 	}
 	
@@ -474,7 +524,7 @@ public class GraphingComp extends JComponent{
 			//If the left mouse button is pressed, it checks to see if the mouse is in the current X circle.
 			//If it is, 'allowCurrentXMovement' is made true. Actual movement is dealt with in 'mouseMoved(MouseEvent e)'
 			if(pressed[1]){
-				Rectangle r = new Rectangle((int)(currentX*xScl)+(int)(originX)-(circleSize/2),(int)(originY)-(circleSize/2),circleSize,circleSize);
+				Rectangle r = new Rectangle(xPointToPx(currentX)-circleSize/2,(int)originY-circleSize/2,circleSize,circleSize);
 				if(r.contains(new Point(mouseX,mouseY))){
 					allowCurrentXMovement = true;
 				}
@@ -565,10 +615,11 @@ public class GraphingComp extends JComponent{
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			
-			if(e.getButton() == 3 && functionController.getFunctionCount() != 0){
+			//True when user right clicks on function box
+			if(e.getButton() == 3 && functionController.size() != 0){
 				
-				int functionLevel = mouseY/lastFunctionBoxHeight;
-				if(mouseX < lastFunctionBoxWidth + functionBoxWidthPadding*2 && functionLevel < functionController.getFunctionCount()){
+				int functionLevel = mouseY/functionBoxHeight;
+				if(mouseX < functionBoxWidth + functionBoxWidthPadding*2 && functionLevel < functionController.size()){
 					Function f = functionController.getFunction(functionLevel);
 					showFunctionPopup(f, mouseX, mouseY);
 				}				
@@ -594,13 +645,15 @@ public class GraphingComp extends JComponent{
 		
 	}
 	
+	/*
+	 * The JPopupMenu which should appear when a user right clicks on a function within the function window
+	 */
 	class FunctionPopup extends JPopupMenu{
 		Function f;
 		
 		JMenuItem color;
 		JMenuItem remove;
-		JMenuItem integrate;
-		
+		JMenuItem integrate;		
 		
 		public FunctionPopup(){			
 			PressListener pl = new PressListener();
@@ -661,7 +714,7 @@ public class GraphingComp extends JComponent{
 		}
 	}	
 	
-	FunctionPopup functionPopup;
+	
 	
 	private void showFunctionPopup(Function f, int x, int y){
 		
