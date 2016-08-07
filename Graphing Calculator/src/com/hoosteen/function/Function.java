@@ -1,6 +1,7 @@
 package com.hoosteen.function;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import com.hoosteen.math.term.Term;
 import com.hoosteen.math.term.TermReader;
@@ -10,6 +11,9 @@ public class Function {
 	Color col;
 
 	Term mainTerm;
+	
+	//ArrayList of integrals to be drawn
+	ArrayList<Integral> integralList = new ArrayList<Integral>();
 	
 	public Function(String functionString, Color c){
 		col = c;
@@ -38,5 +42,17 @@ public class Function {
 	
 	public void setColor(Color color) {
 		col = color;
+	}
+
+	public void addIntegral(Integral newIntegral) {
+		integralList.add(newIntegral);
+	}
+
+	public ArrayList<Integral> getIngegrals() {
+		return integralList;
+	}
+
+	public void removeIntegral(Integral i) {
+		integralList.remove(i);
 	}
 }

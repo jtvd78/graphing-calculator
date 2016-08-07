@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -114,11 +115,12 @@ public class GraphingComp extends JComponent{
 		int functionBoxWidth;
 		int functionBoxHeight;
 		
-	//ArrayList of integrals to be drawn
-		ArrayList<Integral> integralList = new ArrayList<Integral>();
 		
 	//The JPopupMenu which appears when a user right clicks on a function within the function box
 		FunctionPopup functionPopup;
+		
+	//The JPopupMenu which appears when a user right clicks on an integral
+		IntegralPopup integralPopup;
 	
 	//Parent frame
 		JFrame frame;
@@ -167,17 +169,18 @@ public class GraphingComp extends JComponent{
 		//----START GRAPH DRAWING----//
 		drawBackground(g);
 		
-		drawAxis(g);
+		drawAxis(g);	
 		
-		for(Integral i : integralList){
-			drawIntegral(i, g);
-		}	
+		polygonList.clear();
+		
+		drawFunctions(g);
 		
 		//Draw currentX line
 		g.setColor(Color.white);
 		g.drawLine((int)(currentX*xScl)+(int)(originX),0,(int)(currentX*xScl)+(int)(originX),h);
 		
-		drawFunctions(g);
+		drawLabels(g);
+		
 		drawXOval(g);
 		
 		drawFunctionBox(g);
@@ -296,7 +299,7 @@ public class GraphingComp extends JComponent{
 	 */
 	public void drawIntegral(Integral integral, GraphicsWrapper g){	
 		
-		Function function = integral.getF();
+		Function function = integral.getFunction();
 		
 		g.setColor(function.getColor()); //Sets color to the graph's corresponding color
 		
@@ -339,8 +342,11 @@ public class GraphingComp extends JComponent{
 			yPolyPointsArr[i] = yPolyPoints.get(i);
 		}		
 		
-		//Fill the shape
-		g.fillPolygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());		
+		Polygon p = new Polygon(xPolyPointsArr, yPolyPointsArr, xPolyPoints.size());
+		
+		g.getGraphics().fillPolygon(p);
+		
+		polygonList.add(new IntegralShape(integral,p));
 		
 		//Find the center and draw area
 		g.setColor(Color.BLACK);
@@ -361,11 +367,12 @@ public class GraphingComp extends JComponent{
 		return (double)(Math.round(value*round))/round + "";
 	}
 	
+	Function boldFunction;
+	
+	ArrayList<Polyline> polylineList = new ArrayList<Polyline>();
+	
 	//Draws the functions
 	public void drawFunctions(GraphicsWrapper g){
-		
-		int halfCircle = circleSize/2;		
-		int xLocation = xPointToPx(currentX);		
 		
 		//X positions (px) that the graph should start and stop (edge of the screen)
 		int begin = -(int)(originX);
@@ -373,8 +380,12 @@ public class GraphingComp extends JComponent{
 		
 		Color functionColor;
 		
+		polylineList.clear();
+		
 		//Loops through every function in function controller
 		for(int functionCtr = 0; functionCtr < functionController.size(); functionCtr++){
+			
+			Function currentFunction =  functionController.getFunction(functionCtr);
 			
 			functionColor = functionController.getColor(functionCtr);
 			
@@ -390,7 +401,46 @@ public class GraphingComp extends JComponent{
 				yPoints[x - begin] = yPointToPx(functionController.getY(x/xScl,functionCtr));
 			}
 			
+			if(currentFunction.equals(boldFunction)){
+				//3 Point (thickness) line
+				Graphics2D g2 = (Graphics2D)g.getGraphics();
+				g2.setStroke(new BasicStroke(3));
+			}			
+			
+			
 			g.drawPolyline(xPoints, yPoints, xPoints.length);
+			
+			if(currentFunction.equals(boldFunction)){
+				Graphics2D g2 = (Graphics2D)g.getGraphics();
+				g2.setStroke(new BasicStroke(1));
+			}
+			
+			
+			polylineList.add(new Polyline(xPoints, yPoints, xPoints.length,currentFunction));
+			
+			
+			
+			//Draws each function's integrals
+			for(Integral i : functionController.getFunction(functionCtr).getIngegrals()){
+				drawIntegral(i, g);
+			}
+		}
+	}
+	
+	public void drawLabels(GraphicsWrapper g){
+		
+		
+		
+		Color functionColor;
+		
+		int halfCircle = circleSize/2;		
+		int xLocation = xPointToPx(currentX);		
+		
+		//Loops through every function in function controller
+		for(int functionCtr = 0; functionCtr < functionController.size(); functionCtr++){	
+			
+			functionColor = functionController.getColor(functionCtr);
+			g.setColor(functionColor);
 			
 			//Value of Y where the current X marker is.
 			double yy = functionController.getY(currentX,functionCtr);
@@ -409,7 +459,6 @@ public class GraphingComp extends JComponent{
 			g.setColor(functionColor); //Sets color to the graph's corresponding color
 			
 			g.drawCenteredString(displayValue, r,GraphicsWrapper.HorizAlign.CENTER, GraphicsWrapper.VertAlign.MIDDLE);	
-			
 			
 			//Draws the outline
 			g.setColor(Color.black);
@@ -546,7 +595,30 @@ public class GraphingComp extends JComponent{
 		}
 
 		@Override
-		public void mouseMoved(MouseEvent e) {
+		public void mouseMoved(MouseEvent e) {			
+			
+			Polyline lowest = null;
+			int lowestDistance = Integer.MAX_VALUE;			
+			
+			for(Polyline l : polylineList){
+				
+				int localLowest = l.getLowestDistance(mouseX,  mouseY);
+				if(localLowest < lowestDistance){
+					lowestDistance = localLowest;
+					lowest = l;
+				}
+				
+			}			
+			
+			if(lowest != null && lowestDistance < 10){
+				boldFunction = lowest.getFunction();
+				repaint();
+			}else{
+				boldFunction = null;
+				repaint();
+			}
+			
+			
 			if(pressed[1]){
 				//If mouse is on current X circle, move the current X location
 				if(allowCurrentXMovement){
@@ -593,9 +665,22 @@ public class GraphingComp extends JComponent{
 				repaint();
 			}
 			
+
+			
+			
+			
+			
+			
 			//sets mouse coordinates
 			mouseX = e.getX();
 			mouseY = e.getY();
+			
+			
+			
+			
+			
+			
+			
 		}
 		
 		//Called when window is resized
@@ -615,14 +700,38 @@ public class GraphingComp extends JComponent{
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			
-			//True when user right clicks on function box
+			
 			if(e.getButton() == 3 && functionController.size() != 0){
 				
 				int functionLevel = mouseY/functionBoxHeight;
+				
+				//True when user right clicks on function box
 				if(mouseX < functionBoxWidth + functionBoxWidthPadding*2 && functionLevel < functionController.size()){
 					Function f = functionController.getFunction(functionLevel);
 					showFunctionPopup(f, mouseX, mouseY);
-				}				
+				}else{
+					
+					if(boldFunction != null){
+						
+						showFunctionPopup(boldFunction, mouseX, mouseY);
+						
+					}else{
+						
+						
+						for(int i = polygonList.size() - 1; i >= 0; i--){
+							
+							IntegralShape shape = polygonList.get(i);
+							
+							if(shape.getPolygon().contains(mouseX, mouseY)){
+								Integral integral = shape.getIntegral();
+								showIntegralPopup(integral, mouseX, mouseY);
+								break;
+							}
+						}
+						
+						
+					}					
+				}
 			}
 		}
 
@@ -645,26 +754,57 @@ public class GraphingComp extends JComponent{
 		
 	}
 	
+	ArrayList<IntegralShape> polygonList = new ArrayList<IntegralShape>();
+	
+	class IntegralShape{
+		
+		Integral integral;
+		Polygon polygon;
+		
+		
+		public IntegralShape(Integral integral, Polygon polygon){
+			this.integral = integral;
+			this.polygon = polygon;
+		}
+		
+		public Integral getIntegral(){
+			return integral;
+		}
+		
+		public Polygon getPolygon(){
+			return polygon;
+		}
+		
+	}
+	
+	private void showFunctionPopup(Function f, int x, int y){
+		
+		if(functionPopup == null){
+			functionPopup = new FunctionPopup();
+		}
+		functionPopup.setFunction(f);
+		functionPopup.show(this, x, y);
+	}
+	
 	/*
 	 * The JPopupMenu which should appear when a user right clicks on a function within the function window
 	 */
-	class FunctionPopup extends JPopupMenu{
+	class FunctionPopup extends JPopupMenu implements ActionListener{
 		Function f;
 		
 		JMenuItem color;
 		JMenuItem remove;
 		JMenuItem integrate;		
 		
-		public FunctionPopup(){			
-			PressListener pl = new PressListener();
+		public FunctionPopup(){
 			
 			color = new JMenuItem("Change color");
 			remove = new JMenuItem("Remove function");
 			integrate = new JMenuItem("Integrate");
 			
-			color.addActionListener(pl);
-			remove.addActionListener(pl);			
-			integrate.addActionListener(pl);
+			color.addActionListener(this);
+			remove.addActionListener(this);			
+			integrate.addActionListener(this);
 			
 			add(color);
 			add(remove);
@@ -675,54 +815,70 @@ public class GraphingComp extends JComponent{
 			this.f = f;
 		}
 		
-		class PressListener implements ActionListener{
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(e.getSource() == color){
-					
-					Color newCol =JColorChooser.showDialog(GraphingComp.this,"Chose Function Color",f.getColor());
-					if(newCol != null){
-						f.setColor(newCol);
-						GraphingComp.this.repaint();
-					}					
-					
-				}else if(e.getSource() == remove){
-					
-					functionController.removeFunction(f);
-					
-					ArrayList<Integral> removeList = new ArrayList<Integral>();
-					for(Integral i : integralList){
-						if(i.getF().equals(f)){
-							removeList.add(i);
-						}
-					}
-					
-					for(Integral i : removeList){
-						integralList.remove(i);
-					}				
-					
-					GraphingComp.this.repaint();				
-					
-				}else if(e.getSource() == integrate){
-					
-					integralList.add(Integral.showNewIntegralPopupDialog(frame,f));
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == color){
+				
+				Color newCol =JColorChooser.showDialog(GraphingComp.this,"Chose Function Color",f.getColor());
+				if(newCol != null){
+					f.setColor(newCol);
 					GraphingComp.this.repaint();
-					
-				}
+				}					
+				
+			}else if(e.getSource() == remove){
+				
+				functionController.removeFunction(f);
+				GraphingComp.this.repaint();				
+				
+			}else if(e.getSource() == integrate){
+				
+				f.addIntegral(Integral.showNewIntegralPopupDialog(frame,f));	
+				
+				GraphingComp.this.repaint();				
 			}
 		}
 	}	
 	
-	
-	
-	private void showFunctionPopup(Function f, int x, int y){
+	private void showIntegralPopup(Integral i, int x, int y){
 		
-		if(functionPopup == null){
-			functionPopup = new FunctionPopup();
+		if(integralPopup == null){
+			integralPopup = new IntegralPopup();
 		}
-		functionPopup.setFunction(f);
-		functionPopup.show(this, x, y);
+		integralPopup.setIntegral(i);
+		integralPopup.show(this, x, y);
+		
+	}
+	
+	/*
+	 * The JPopupMenu which should appear when a user right clicks on an integral
+	 */
+	class IntegralPopup extends JPopupMenu implements ActionListener{
+		Integral i;
+		
+		JMenuItem remove;
+		
+		public IntegralPopup(){
+			
+			remove = new JMenuItem("Remove integral");			
+			remove.addActionListener(this);					
+			add(remove);
+			
+		}
+		
+		public void setIntegral(Integral i){
+			this.i = i;
+		}
+		
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			 if(e.getSource() == remove){
+				 
+				i.getFunction().removeIntegral(i);
+				GraphingComp.this.repaint();				
+				
+			}		
+		}
 	}
 	
 	//Zooms In

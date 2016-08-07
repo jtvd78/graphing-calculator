@@ -2,6 +2,7 @@ package com.hoosteen.function;
 
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,13 +26,16 @@ public class Integral {
 	double area;
 	boolean areaFound = false;
 	
+
+	
+	
 	public Integral(Function f, double startX, double endX){
 		this.f = f;
 		this.startX = startX;
 		this.endX = endX;		
 	}
 
-	public Function getF() {
+	public Function getFunction() {
 		return f;
 	}
 
