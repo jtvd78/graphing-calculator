@@ -48,4 +48,23 @@ public class FunctionController implements Iterable<Function>{
 	public void removeFunction(Function f) {
 		functionList.remove(f);
 	}
+
+	public void moveUp(Function f) {
+		
+		int index = functionList.indexOf(f);
+		if(index < functionList.size() - 1){
+			functionList.remove(f);
+			functionList.add(index+1, f);
+		}
+		
+		
+	}
+
+	public void moveDown(Function f) {
+		int index = functionList.indexOf(f);
+		if(index > 0){
+			functionList.remove(f);
+			functionList.add(index-1, f);
+		}
+	}
 }

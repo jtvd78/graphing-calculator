@@ -48,7 +48,7 @@ public class Function {
 		integralList.add(newIntegral);
 	}
 
-	public ArrayList<Integral> getIngegrals() {
+	public ArrayList<Integral> getIntegrals() {
 		return integralList;
 	}
 

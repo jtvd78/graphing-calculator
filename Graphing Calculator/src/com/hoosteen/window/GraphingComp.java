@@ -99,7 +99,7 @@ public class GraphingComp extends JComponent{
 	
 	//true if mouse is pressed
 	//includes all buttons
-		boolean pressed[] = new boolean[4];
+		boolean pressed[] = new boolean[6];
 	
 	//position of mouse on window
 		int mouseX = -1;
@@ -116,7 +116,7 @@ public class GraphingComp extends JComponent{
 		int functionBoxHeight;
 		
 		
-	//The JPopupMenu which appears when a user right clicks on a function within the function box
+	//The JPopupMenu which appears when a user right clicks on a function
 		FunctionPopup functionPopup;
 		
 	//The JPopupMenu which appears when a user right clicks on an integral
@@ -141,12 +141,12 @@ public class GraphingComp extends JComponent{
 		this.functionController = c;
 		
 		//Listener is the subclass that implements all of the input interfaces
-		Listener l = new Listener();
+		Listener l = new Listener();		
 		
-		addMouseMotionListener(l);
 		addMouseListener(l);
-		addMouseWheelListener(l);
 		addComponentListener(l);
+		addMouseWheelListener(l);
+		addMouseMotionListener(l);		
 	}
 
 	//This method is called whenever the program needs to paint the window
@@ -170,8 +170,6 @@ public class GraphingComp extends JComponent{
 		drawBackground(g);
 		
 		drawAxis(g);	
-		
-		polygonList.clear();
 		
 		drawFunctions(g);
 		
@@ -380,7 +378,8 @@ public class GraphingComp extends JComponent{
 		
 		Color functionColor;
 		
-		polylineList.clear();
+		polygonList.clear();
+		polylineList.clear();		
 		
 		//Loops through every function in function controller
 		for(int functionCtr = 0; functionCtr < functionController.size(); functionCtr++){
@@ -421,7 +420,7 @@ public class GraphingComp extends JComponent{
 			
 			
 			//Draws each function's integrals
-			for(Integral i : functionController.getFunction(functionCtr).getIngegrals()){
+			for(Integral i : functionController.getFunction(functionCtr).getIntegrals()){
 				drawIntegral(i, g);
 			}
 		}
@@ -794,21 +793,33 @@ public class GraphingComp extends JComponent{
 		
 		JMenuItem color;
 		JMenuItem remove;
-		JMenuItem integrate;		
+		JMenuItem integrate;
+		JMenuItem up;
+		JMenuItem down;
 		
 		public FunctionPopup(){
 			
+			up = new JMenuItem("Bring forward");
+			down = new JMenuItem("Move back");		
 			color = new JMenuItem("Change color");
 			remove = new JMenuItem("Remove function");
 			integrate = new JMenuItem("Integrate");
 			
+			up.addActionListener(this);
+			down.addActionListener(this);
 			color.addActionListener(this);
 			remove.addActionListener(this);			
 			integrate.addActionListener(this);
 			
+			
+			add(integrate);			
 			add(color);
 			add(remove);
-			add(integrate);
+			addSeparator();			
+			add(up);
+			add(down);
+			
+			
 		}
 		
 		public void setFunction(Function f){
@@ -835,6 +846,13 @@ public class GraphingComp extends JComponent{
 				f.addIntegral(Integral.showNewIntegralPopupDialog(frame,f));	
 				
 				GraphingComp.this.repaint();				
+			}else if(e.getSource() == up){
+				
+				functionController.moveUp(f);
+				GraphingComp.this.repaint();
+			}else if(e.getSource() == down){
+				functionController.moveDown(f);
+				GraphingComp.this.repaint();
 			}
 		}
 	}	
