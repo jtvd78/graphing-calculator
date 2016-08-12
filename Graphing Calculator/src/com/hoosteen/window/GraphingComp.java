@@ -786,7 +786,7 @@ public class GraphingComp extends JComponent{
 	}
 	
 	/*
-	 * The JPopupMenu which should appear when a user right clicks on a function within the function window
+	 * The JPopupMenu which should appear when a user right clicks on a function
 	 */
 	class FunctionPopup extends JPopupMenu implements ActionListener{
 		Function f;
